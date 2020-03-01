@@ -34,6 +34,10 @@ class WebSocket {
 		this.isStart && this.ws.close();
 		this.isStart = false;
 	}
+
+	listen(...args: any[]) {
+		this.ws.addListener(...args);
+	}
 }
 
 export default new WebSocket();

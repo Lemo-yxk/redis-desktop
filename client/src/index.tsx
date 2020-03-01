@@ -4,6 +4,7 @@ import Axios from "axios";
 import "./index.css";
 import App from "./app/App";
 import * as serviceWorker from "./serviceWorker";
+import { message, notification } from "antd";
 
 Axios.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
 
@@ -14,6 +15,10 @@ Axios.defaults.timeout = 5000;
 Axios.interceptors.response.use(response => {
 	return response;
 });
+
+message.config({ maxCount: 3 });
+
+notification.config({});
 
 ReactDOM.render(<App />, document.getElementById("root"));
 

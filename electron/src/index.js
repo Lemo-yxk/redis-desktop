@@ -1,8 +1,6 @@
-const { app, BrowserWindow, screen } = require("electron");
+const { app, BrowserWindow, screen, Menu } = require("electron");
 const path = require("path");
 const child = require("child_process");
-
-main();
 
 function main() {
 	// env
@@ -52,6 +50,8 @@ function main() {
 		if (dev) mainWindow.webContents.openDevTools();
 	};
 
+	Menu.setApplicationMenu(null);
+
 	app.allowRendererProcessReuse = true;
 
 	// This method will be called when Electron has finished
@@ -94,3 +94,5 @@ function main() {
 	// In this file you can include the rest of your app's specific main process
 	// code. You can also put them in separate files and import them here.
 }
+
+main();
