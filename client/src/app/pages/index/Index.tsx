@@ -3,8 +3,17 @@ import { Rnd, ResizeEnable } from "react-rnd";
 import "./index.scss";
 import Header from "../../components/header/Header";
 import AddServer from "../../components/addServer/AddServer";
+import WebSocket from "../../ws/WebSocket";
 
 class Index extends Component {
+	state = { date: "" };
+
+	componentWillMount() {
+		WebSocket.ws.addListener("system-time", (event: any, data: any) => {
+			this.setState({ date: data.msg });
+		});
+	}
+
 	render() {
 		return (
 			<div className="index">
@@ -22,7 +31,7 @@ class Index extends Component {
 					>
 						left
 					</Rnd>
-					<div className="right"></div>
+					<div className="right">{this.state.date}</div>
 				</div>
 			</div>
 		);

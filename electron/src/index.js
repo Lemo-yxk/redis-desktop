@@ -19,9 +19,9 @@ function main() {
 
 	if (!dev) {
 		if (process.platform === "win32") {
-			server = child.exec(path.join(__dirname, "main.exe"));
+			server = child.exec(path.join(__dirname, "server.exe"));
 		} else {
-			server = child.exec(path.join(__dirname, "main"));
+			server = child.exec(path.join(__dirname, "server"));
 		}
 	}
 

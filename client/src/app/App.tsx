@@ -5,6 +5,7 @@ import "./App.scss";
 import Index from "./pages/index/Index";
 import Login from "./pages/login/Login";
 import Command from "./pages/command/Command";
+import WebSocket from "./ws/WebSocket";
 
 export default class App extends Component {
 	unlisten!: UnregisterCallback;
@@ -12,6 +13,11 @@ export default class App extends Component {
 	change(location: Location<History.PoorMansUnknown>) {
 		if (false) return (window.location.hash = "/login");
 		if (location.hash === "#/login") return (window.location.hash = "/index");
+	}
+
+	constructor(props: any) {
+		super(props);
+		WebSocket.start();
 	}
 
 	componentWillMount() {
@@ -29,6 +35,7 @@ export default class App extends Component {
 	}
 
 	componentWillUnmount() {
+		WebSocket.close();
 		this.unlisten();
 	}
 
