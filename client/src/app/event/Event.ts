@@ -1,7 +1,7 @@
 class Event {
-	events: { [key: string]: (args?: any[]) => void } = {};
+	events: { [key: string]: (...args: any[]) => void } = {};
 
-	add(name: string, e: (args?: any[]) => void): string {
+	add(name: string, e: (...args: any[]) => void): string {
 		this.events[name] = e;
 		return name;
 	}
@@ -10,8 +10,8 @@ class Event {
 		delete this.events[name];
 	}
 
-	emit(name: string, args?: any[]) {
-		this.events[name](args);
+	emit(name: string, ...args: any[]) {
+		this.events[name](...args);
 	}
 }
 

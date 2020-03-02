@@ -1,5 +1,12 @@
 .key-tree {
 	background: #ffffff;
 	position: relative !important;
-	padding: 2px;
+
+	.select-panel {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		flex-direction: column;
+		height: 100%;
+	}
 }

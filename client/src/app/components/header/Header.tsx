@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Button } from "antd";
 import "./header.scss";
 import Event from "../../event/Event";
+import { AlignLeftOutlined } from "@ant-design/icons";
 
 export default class Header extends Component {
 	render() {
@@ -11,24 +12,17 @@ export default class Header extends Component {
 					<Button type="primary" onClick={() => this.addServer()}>
 						添加
 					</Button>
-					<Button ghost>Default</Button>
-					<Button ghost>Default</Button>
-					<Button ghost>Default</Button>
 				</div>
 				<div className="right">
-					<Button type="primary" ghost>
-						Primary
-					</Button>
-					<Button ghost>Default</Button>
-					<Button type="dashed" ghost>
-						link
-					</Button>
-					<Button type="dashed" danger ghost>
-						link
+					<Button type="dashed" danger ghost onClick={() => this.serverList()}>
+						<AlignLeftOutlined />
 					</Button>
 				</div>
 			</div>
 		);
+	}
+	serverList(): void {
+		Event.emit("serverList");
 	}
 	addServer(): void {
 		Event.emit("addServer");

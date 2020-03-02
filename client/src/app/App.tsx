@@ -20,7 +20,7 @@ export default class App extends Component {
 		WebSocket.start();
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		const history = createBrowserHistory();
 		// Get the current location.
 		const location = history.location;

@@ -5,7 +5,7 @@ import WebSocket from "../../ws/WebSocket";
 export default class Panel extends Component {
 	state = { date: "" };
 
-	componentWillMount() {
+	componentDidMount() {
 		WebSocket.listen("system-time", (event: any, data: any) => {
 			this.setState({ date: data });
 		});

@@ -4,5 +4,13 @@
 		input {
 			margin: 5px 0px;
 		}
+		div {
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			button {
+				margin-right: 10px;
+			}
+		}
 	}
 }

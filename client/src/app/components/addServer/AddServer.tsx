@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { Drawer, Radio, Input, Button, message, notification } from "antd";
+import { Drawer, Radio, Input, Button, notification } from "antd";
 import Event from "../../event/Event";
 import "./addServer.scss";
 import Axios from "axios";
 import Tools from "../../tools/Tools";
-import Config from "./Config";
+import Config from "../config/Config";
 
 export default class AddServer extends Component {
 	state = { visible: false, radio: "normal" };
@@ -18,7 +18,7 @@ export default class AddServer extends Component {
 		this.setState({ visible: true });
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		this.event = Event.add("addServer", () => {
 			this.onOpen();
 		});
@@ -37,13 +37,13 @@ export default class AddServer extends Component {
 	render() {
 		return (
 			<Drawer
-				title="create new server"
+				title="add server"
 				placement="right"
 				closable={false}
 				onClose={() => this.onClose()}
 				visible={this.state.visible}
 				getContainer={false}
-				width={"50%"}
+				width={"30%"}
 				className="add-server"
 			>
 				<Radio.Group value={this.state.radio} onChange={value => this.setState({ radio: value.target.value })}>
@@ -55,12 +55,14 @@ export default class AddServer extends Component {
 					<Input placeholder="host" onChange={value => (this.host = value.target.value)} />
 					<Input placeholder="port" onChange={value => (this.port = value.target.value)} />
 					<Input placeholder="password" onChange={value => (this.password = value.target.value)} />
-					<Button type="primary" onClick={() => this.submit()}>
-						创建
-					</Button>
-					<Button type="primary" onClick={() => this.test()}>
-						测试
-					</Button>
+					<div>
+						<Button type="primary" onClick={() => this.submit()}>
+							创建
+						</Button>
+						<Button type="primary" onClick={() => this.test()}>
+							测试
+						</Button>
+					</div>
 				</div>
 			</Drawer>
 		);
@@ -92,6 +94,9 @@ export default class AddServer extends Component {
 			password: this.password,
 			master: this.master
 		};
+
+		let cfg = Config.get(this.name);
+		if (cfg) return notification.error({ message: "ERROR", description: `${this.name} 已经存在!` });
 
 		Config.set(this.name, data);
 
