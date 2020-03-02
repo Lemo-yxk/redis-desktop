@@ -99,7 +99,7 @@ func (res *ScanResult) Result() string {
 	return res.res
 }
 
-func Scan(client *Client, key string, count int) chan *ScanResult {
+func Scan(client *redis.Client, key string, count int) chan *ScanResult {
 
 	var ch = make(chan *ScanResult, 1)
 
@@ -110,7 +110,7 @@ func Scan(client *Client, key string, count int) chan *ScanResult {
 
 			var keys []string
 			var err error
-			keys, cursor, err = client.Handler.Scan(cursor, key, int64(count)).Result()
+			keys, cursor, err = client.Scan(cursor, key, int64(count)).Result()
 			if err != nil {
 				ch <- &ScanResult{err: err}
 				close(ch)

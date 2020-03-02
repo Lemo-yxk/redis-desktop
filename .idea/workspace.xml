@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="f3cdb893-c8a8-48c8-bf74-d39b1507d7ac" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/server/server/http/controller/redis/key.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/server/http/middleware/before/key.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/services/scan.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/app/components/addServer/AddServer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/app/components/addServer/AddServer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/app/components/config/Config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/app/components/config/Config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/app/components/header/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/app/components/header/Header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/app/components/keyTree/KeyTree.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/app/components/keyTree/KeyTree.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/app/components/keyTree/keyTree.scss" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/app/components/keyTree/keyTree.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/app/components/serverList/ServerList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/app/components/serverList/ServerList.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/app/pages/index/index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/app/pages/index/index.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/app/tools/Tools.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/app/tools/Tools.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/client/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/asset-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/electron/src/dist/asset-manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/electron/src/dist/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/precache-manifest.48f3efb3625e049fd3f3ae1ce42c5a7f.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/service-worker.js" beforeDir="false" afterPath="$PROJECT_DIR$/electron/src/dist/service-worker.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/static/css/2.290bad46.chunk.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/static/css/2.290bad46.chunk.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/static/css/main.067a286c.chunk.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/static/css/main.067a286c.chunk.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/static/js/2.3c9c42fa.chunk.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/static/js/2.3c9c42fa.chunk.js.LICENSE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/static/js/2.3c9c42fa.chunk.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/static/js/main.684dab21.chunk.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/dist/static/js/main.684dab21.chunk.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/electron/src/server" beforeDir="false" afterPath="$PROJECT_DIR$/electron/src/server" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/bin/server" beforeDir="false" afterPath="$PROJECT_DIR$/server/bin/server" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/pkg/redis/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/pkg/redis/redis.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server/http/controller/redis/get.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server/http/controller/redis/db.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server/http/controller/redis/register.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server/http/controller/redis/register.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server/http/middleware/before/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server/http/middleware/before/redis.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server/http/router/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server/http/router/redis.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="GOROOT" path="/usr/local/Cellar/go/1.14/libexec" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="false" />
+  </component>
+  <component name="ProjectId" id="1YZxQhLxnQ7AUJBzolwccmvvik8" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
+    <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+</project>

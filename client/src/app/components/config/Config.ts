@@ -4,6 +4,7 @@ interface config {
 	password: string;
 	name: string;
 	master: string;
+	type: string;
 }
 
 class Config {

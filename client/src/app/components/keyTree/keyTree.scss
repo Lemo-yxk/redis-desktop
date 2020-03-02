@@ -1,12 +1,47 @@
 .key-tree {
 	background: #ffffff;
 	position: relative !important;
+	height: 100%;
 
 	.select-panel {
 		display: flex;
 		justify-content: space-between;
 		align-items: flex-start;
 		flex-direction: column;
-		height: 100%;
+		height: 32px;
+		width: 100%;
 	}
+
+	.data-tree {
+		height: calc(100% - 64px);
+		overflow-y: auto;
+		width: 100%;
+	}
+
+	.title {
+		height: 32px;
+		width: 100%;
+	}
+}
+
+.ant-tree .ant-tree-treenode {
+	padding: 0;
+}
+
+.ant-tree .ant-tree-node-content-wrapper {
+	padding: 0;
+}
+
+.ant-tree .ant-tree-switcher-noop {
+	display: none;
+}
+
+.css-1u94gzr {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.css-80f7ae {
+	color: rgba(0, 0, 0, 0.65) !important;
 }

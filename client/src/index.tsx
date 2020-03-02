@@ -18,7 +18,7 @@ Axios.interceptors.response.use(response => {
 
 message.config({ maxCount: 3 });
 
-notification.config({});
+notification.config({ duration: 2 });
 
 ReactDOM.render(<App />, document.getElementById("root"));
 

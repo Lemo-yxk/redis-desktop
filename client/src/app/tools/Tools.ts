@@ -1,3 +1,5 @@
+import { notification } from "antd";
+
 class Tools {
 	QueryString(data: { [key: string]: string }) {
 		let s = "";
@@ -13,6 +15,14 @@ class Tools {
 			res.push(index);
 		}
 		return res;
+	}
+
+	Notification(response: any, message: any = { success: response.data.msg, error: response.data.msg }) {
+		if (response.data.code === 200) {
+			notification.success({ message: message.success });
+		} else {
+			notification.error({ message: message.error });
+		}
 	}
 }
 

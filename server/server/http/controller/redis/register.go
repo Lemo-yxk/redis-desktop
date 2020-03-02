@@ -35,10 +35,10 @@ func (r *register) Normal(stream *lemo.Stream) exception.ErrorFunc {
 	var port = stream.Form.Get("port").String()
 	var password = stream.Form.Get("password").String()
 
-	_, err := app.Redis().New(name, fmt.Sprintf("%s:%s", host, port), password)
+	client, err := app.Redis().New(name, fmt.Sprintf("%s:%s", host, port), password)
 	if err != nil {
 		return exception.New(stream.JsonFormat("ERROR", 404, err.Error()))
 	}
 
-	return exception.New(stream.JsonFormat("SUCCESS", 200, nil))
+	return exception.New(stream.JsonFormat("SUCCESS", 200, client.ConfigGet("DATABASES").Val()))
 }
