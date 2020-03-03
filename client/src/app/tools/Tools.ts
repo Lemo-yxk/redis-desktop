@@ -1,5 +1,4 @@
-import { notification } from "antd";
-
+import { notification, message } from "antd";
 class Tools {
 	QueryString(data: { [key: string]: string }) {
 		let s = "";
@@ -17,11 +16,19 @@ class Tools {
 		return res;
 	}
 
-	Notification(response: any, message: any = { success: response.data.msg, error: response.data.msg }) {
+	Notification(response: any, success?: any, error?: any) {
+		if (response.isAxiosError) {
+			let error = response.toJSON();
+			notification.error({ message: error.message });
+			message.destroy();
+			throw error;
+		}
+		success = success || response.data.msg;
+		error = error || response.data.msg;
 		if (response.data.code === 200) {
-			notification.success({ message: message.success });
+			notification.success({ message: success });
 		} else {
-			notification.error({ message: message.error });
+			notification.error({ message: error });
 		}
 	}
 }

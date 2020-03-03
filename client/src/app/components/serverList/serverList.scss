@@ -11,3 +11,20 @@
 		}
 	}
 }
+.choose-server {
+	width: 100%;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+
+	.ant-modal-content {
+		width: 60%;
+	}
+
+	.ant-modal-body {
+		width: 100%;
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+	}
+}

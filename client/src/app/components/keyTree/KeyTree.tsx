@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import { Rnd } from "react-rnd";
 import "./keyTree.scss";
-import { Tree, Select, Button, notification } from "antd";
+import { Select, Button, message } from "antd";
 import Tools from "../../tools/Tools";
 import Event from "../../event/Event";
 import Config from "../config/Config";
-import Axios from "axios";
 import WebSocket from "../../ws/WebSocket";
-import { Treebeard, TreeTheme } from "react-treebeard";
+import { Treebeard } from "react-treebeard";
+import Command from "../../services/Command";
 
 const Option = Select.Option;
 
@@ -20,12 +20,14 @@ export default class KeyTree extends Component {
 
 	serverName = "";
 	databases = "";
+	db = "请选择DB";
+	type = "";
 
 	componentDidMount() {
-		Event.add("connect", key => this.connect(key));
-		Event.add("disconnect", key => this.disconnect(key));
-		Event.add("update", key => this.update(key));
-		Event.add("delete", key => this.delete(key));
+		Event.add("connect", (type, serverName) => this.connect(type, serverName));
+		Event.add("disconnect", serverName => this.disconnect(serverName));
+		Event.add("update", serverName => this.update(serverName));
+		Event.add("delete", serverName => this.delete(serverName));
 
 		WebSocket.listen("scan", (e: any, v: any) => {
 			for (let index = 0; index < v.length; index++) {
@@ -35,7 +37,8 @@ export default class KeyTree extends Component {
 			console.log(this.dataTree);
 		});
 
-		this.connect("127.0.0.1");
+		this.connect("normal", "127.0.0.1");
+		this.selectDB(0);
 	}
 
 	componentWillUnmount() {
@@ -45,23 +48,30 @@ export default class KeyTree extends Component {
 		Event.remove("delete");
 	}
 
-	async connect(serverName: any) {
+	async connect(type: string, serverName: any) {
+		this.setState({ select: null, dataTree: [], title: null });
 		this.serverName = serverName;
+		this.db = "请选择DB";
+		this.type = type;
 		let res = await this.login();
 		this.databases = res[1];
 		this.setState({ select: this.createSelect(serverName), title: this.createTitle(serverName) });
 	}
 
 	disconnect(serverName: any) {
-		if (this.serverName === serverName) this.setState({ select: null });
+		if (this.serverName === serverName) {
+			this.setState({ select: null, dataTree: [], title: null });
+		}
 	}
 
 	update(serverName: any) {
-		console.log("update", this.serverName, serverName);
+		Event.emit("openUpdateServer", serverName);
 	}
 
 	delete(serverName: any) {
-		if (this.serverName === serverName) this.setState({ select: null });
+		if (this.serverName === serverName) {
+			this.setState({ select: null, dataTree: [], title: null });
+		}
 	}
 
 	dataTree: any = [];
@@ -119,20 +129,23 @@ export default class KeyTree extends Component {
 
 	createTitle(key: string) {
 		return (
-			<Button type="link" danger>
-				{key}
-			</Button>
+			<div>
+				<div>{key}</div>
+				<Button type="link" danger onClick={() => this.refresh()}>
+					刷新
+				</Button>
+			</div>
 		);
+	}
+	refresh(): void {
+		let db = this.db;
+		this.connect(this.type, this.serverName);
+		if (db !== "") this.selectDB(db);
 	}
 
 	createSelect(key: any) {
 		return (
-			<Select
-				defaultValue={"请选择DB"}
-				style={{ width: "100%" }}
-				listHeight={600}
-				onSelect={value => this.selectDB(value)}
-			>
+			<Select value={this.db} style={{ width: "100%" }} listHeight={600} onSelect={value => this.selectDB(value)}>
 				{Tools.Range(0, parseInt(this.databases)).map(v => (
 					<Option key={v} value={v}>
 						db({v})
@@ -187,32 +200,24 @@ export default class KeyTree extends Component {
 	}
 
 	async onSelect(key: string) {
-		let response = await Axios.post(`/redis/key/type`, Tools.QueryString({ name: this.serverName, key: key }));
-		console.log(response.data);
-
-		response = await Axios.post(
-			`/redis/key/do`,
-			Tools.QueryString({
-				name: this.serverName,
-				key: key,
-				args: `lrange ${key} 0 9`
-			})
-		);
-
-		console.log(response.data);
+		let type = await Command.type(this.serverName, key);
+		Event.emit("selectKey", this.serverName, type, key);
 	}
 
 	async login() {
+		message.loading({ content: `正在连接 ${this.serverName} ...`, duration: 0 });
 		let cfg = Config.get(this.serverName);
-		let response = await Axios.post(`/redis/register/${cfg.type}`, Tools.QueryString(cfg as any));
-		Tools.Notification(response, { success: "连接成功" });
+		let response = await Command.register(this.type, cfg);
+		Tools.Notification(response, "连接成功");
+		message.destroy();
 		return response.data.msg;
 	}
 
-	async selectDB(value: any) {
-		let response = await Axios.post(`/redis/db/select`, Tools.QueryString({ name: this.serverName, db: value }));
+	async selectDB(db: any) {
+		this.db = db;
+		this.setState({ select: this.createSelect(this.serverName) });
+		let response = await Command.selectDB(this.serverName, db);
 		if (response.data.code !== 200) return Tools.Notification(response);
-		let res = await Axios.post(`/redis/db/scan`, Tools.QueryString({ name: this.serverName }));
-		return res.data.msg;
+		await Command.scan(this.serverName);
 	}
 }

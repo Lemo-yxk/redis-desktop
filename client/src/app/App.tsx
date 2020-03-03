@@ -4,7 +4,6 @@ import { createBrowserHistory, History, UnregisterCallback, Location } from "his
 import "./App.scss";
 import Index from "./pages/index/Index";
 import Login from "./pages/login/Login";
-import Command from "./pages/command/Command";
 import WebSocket from "./ws/WebSocket";
 
 export default class App extends Component {
@@ -44,7 +43,6 @@ export default class App extends Component {
 			<HashRouter>
 				<Switch>
 					<Route path="/index" component={Index} />
-					<Route path="/command" component={Command} />
 					<Route path="/login" component={Login} exact />
 					<Redirect from="**" to="/index" />
 				</Switch>

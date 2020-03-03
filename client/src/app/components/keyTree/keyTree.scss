@@ -1,7 +1,8 @@
 .key-tree {
-	background: #ffffff;
+	// background: #ffffff;
 	position: relative !important;
 	height: 100%;
+	border: 1px solid #dddddd;
 
 	.select-panel {
 		display: flex;
@@ -10,17 +11,27 @@
 		flex-direction: column;
 		height: 32px;
 		width: 100%;
+		padding: 5px;
 	}
 
 	.data-tree {
 		height: calc(100% - 64px);
 		overflow-y: auto;
 		width: 100%;
+
+		.css-1up7t0w {
+			background-color: transparent;
+		}
 	}
 
 	.title {
 		height: 32px;
 		width: 100%;
+		> div {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
 	}
 }
 

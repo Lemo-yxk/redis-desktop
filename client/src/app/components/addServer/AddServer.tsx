@@ -2,16 +2,17 @@ import React, { Component } from "react";
 import { Drawer, Radio, Input, Button, notification } from "antd";
 import Event from "../../event/Event";
 import "./addServer.scss";
-import Axios from "axios";
-import Tools from "../../tools/Tools";
 import Config from "../config/Config";
+import Command from "../../services/Command";
+import { MinusCircleOutlined } from "@ant-design/icons";
+import Tools from "../../tools/Tools";
 
 export default class AddServer extends Component {
-	state = { visible: false, radio: "normal" };
+	state = { visible: false, type: "normal", clusterHostInput: null };
 	event!: string;
 
 	onClose() {
-		this.setState({ visible: false });
+		this.setState({ visible: false, clusterHostInput: null });
 	}
 
 	onOpen() {
@@ -26,11 +27,12 @@ export default class AddServer extends Component {
 		Event.remove(this.event);
 	}
 
-	name = "127.0.0.1";
-	host = "127.0.0.1";
-	port = "6379";
-	password = "1354243";
-	master = "master";
+	name = "";
+	host = "";
+	port = "";
+	password = "";
+	master = "";
+	cluster = new Array();
 
 	render() {
 		return (
@@ -45,16 +47,56 @@ export default class AddServer extends Component {
 				destroyOnClose
 				className="add-server"
 			>
-				<Radio.Group value={this.state.radio} onChange={value => this.setState({ radio: value.target.value })}>
+				<Radio.Group value={this.state.type} onChange={value => this.setState({ type: value.target.value })}>
 					<Radio.Button value="normal">Default</Radio.Button>
 					<Radio.Button value="cluster">Cluster</Radio.Button>
 				</Radio.Group>
 				<div className="normal-form">
-					<Input placeholder="name" onChange={value => (this.name = value.target.value)} />
-					<Input placeholder="host" onChange={value => (this.host = value.target.value)} />
-					<Input placeholder="port" onChange={value => (this.port = value.target.value)} />
-					<Input placeholder="password" onChange={value => (this.password = value.target.value)} />
-					<div>
+					<Input
+						spellCheck={false}
+						addonBefore="Name"
+						placeholder="127.0.0.1"
+						onChange={value => (this.name = value.target.value)}
+					/>
+					{this.state.type === "normal" ? (
+						<Input
+							spellCheck={false}
+							addonBefore="Host"
+							placeholder="127.0.0.1"
+							onChange={value => (this.host = value.target.value)}
+						/>
+					) : (
+						<div className="add-input-box">
+							<div className="add">
+								<Button type="dashed" onClick={() => this.addHost()}>
+									HOST
+								</Button>
+							</div>
+							<div className="input">{this.state.clusterHostInput}</div>
+						</div>
+					)}
+					{this.state.type === "normal" ? (
+						<Input
+							spellCheck={false}
+							addonBefore="Port"
+							placeholder="6379"
+							onChange={value => (this.port = value.target.value)}
+						/>
+					) : (
+						<Input
+							spellCheck={false}
+							addonBefore="Master"
+							placeholder="master"
+							onChange={value => (this.master = value.target.value)}
+						/>
+					)}
+					<Input
+						spellCheck={false}
+						addonBefore="Pass"
+						placeholder="password"
+						onChange={value => (this.password = value.target.value)}
+					/>
+					<div className="button-box">
 						<Button type="primary" onClick={() => this.submit()}>
 							创建
 						</Button>
@@ -67,23 +109,47 @@ export default class AddServer extends Component {
 		);
 	}
 
+	createCluster() {
+		let cluster = this.cluster.map((v, i) => (
+			<Input
+				spellCheck={false}
+				key={i}
+				addonAfter={<MinusCircleOutlined onClick={() => this.removeHost(i)} />}
+				className="package-input"
+				placeholder="127.0.0.1:16379"
+				onChange={value => {
+					this.cluster[i] = value.target.value;
+				}}
+			/>
+		));
+		return cluster;
+	}
+
+	removeHost(i: number): void {
+		this.cluster.splice(i, 1);
+		this.setState({ clusterHostInput: this.createCluster() });
+	}
+
+	addHost(): void {
+		this.cluster.push("");
+		this.setState({ clusterHostInput: this.createCluster() });
+	}
+
 	async test() {
-		var data = {
+		let data = {
 			name: this.name,
 			host: this.host,
 			port: this.port,
 			password: this.password,
 			master: this.master,
-			type: this.state.radio
+			cluster: this.cluster.filter(v => v !== "")
 		};
 
-		let response = await Axios.post(`/redis/register/${this.state.radio}`, Tools.QueryString(data));
+		console.log(data);
 
-		if (response.data.code !== 200) {
-			return notification.error({ message: response.data.status, description: response.data.msg });
-		}
+		let response = await Command.register(this.state.type, data);
 
-		return notification.success({ message: response.data.status, description: "连接成功" });
+		return Tools.Notification(response, "连接成功");
 	}
 
 	async submit() {
@@ -93,8 +159,10 @@ export default class AddServer extends Component {
 			port: this.port,
 			password: this.password,
 			master: this.master,
-			type: this.state.radio
+			cluster: this.cluster.filter(v => v !== "")
 		};
+
+		if (this.name === "") return notification.error({ message: `服务器名不能为空!` });
 
 		let cfg = Config.get(this.name);
 		if (cfg) return notification.error({ message: "ERROR", description: `${this.name} 已经存在!` });

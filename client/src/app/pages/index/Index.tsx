@@ -5,6 +5,7 @@ import AddServer from "../../components/addServer/AddServer";
 import KeyTree from "../../components/keyTree/KeyTree";
 import Panel from "../../components/panel/Panel";
 import ServerList from "../../components/serverList/ServerList";
+import UpdateServer from "../../components/updateServer/UpdateServer";
 
 class Index extends Component {
 	render() {
@@ -12,7 +13,10 @@ class Index extends Component {
 			<div className="index">
 				<AddServer></AddServer>
 				<ServerList></ServerList>
-				<Header></Header>
+				<UpdateServer></UpdateServer>
+				<div className="header">
+					<Header></Header>
+				</div>
 				<div className="content">
 					<KeyTree></KeyTree>
 					<Panel></Panel>

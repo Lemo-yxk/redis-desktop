@@ -11,7 +11,7 @@ class Event {
 	}
 
 	emit(name: string, ...args: any[]) {
-		this.events[name](...args);
+		this.events[name] && this.events[name](...args);
 	}
 }
 

@@ -1,12 +1,11 @@
 import React, { Component } from "react";
-import { Drawer, Button, message, Modal } from "antd";
+import { Drawer, Button, Modal } from "antd";
 import Event from "../../event/Event";
 import "./serverList.scss";
 import Config from "../config/Config";
-import confirm from "antd/lib/modal/confirm";
 
 export default class ServerList extends Component {
-	state = { visible: false, header: this.createHeader() };
+	state = { visible: false, modal: false, header: this.createHeader() };
 
 	onClose() {
 		this.setState({ visible: false });
@@ -19,6 +18,7 @@ export default class ServerList extends Component {
 	componentDidMount() {
 		Event.add("openServerList", () => this.onOpen());
 		Event.add("addServer", () => this.setState({ header: this.createHeader() }));
+		Event.add("updateServer", () => this.setState({ header: this.createHeader() }));
 	}
 
 	componentWillUnmount() {
@@ -28,21 +28,21 @@ export default class ServerList extends Component {
 	createHeader() {
 		let data = [];
 		let config = Config.all();
-		for (const key in config) {
+		for (const serverName in config) {
 			data.push(
-				<div className="db-header" key={key}>
-					<div>{key}</div>
+				<div className="db-header" key={serverName}>
+					<div>{serverName}</div>
 					<div className="button">
-						<Button type="link" onClick={() => this.connect(key)}>
+						<Button type="link" onClick={() => this.connect(serverName)}>
 							连接
 						</Button>
-						<Button type="link" onClick={() => this.update(key)}>
+						<Button type="link" onClick={() => this.update(serverName)}>
 							修改
 						</Button>
-						<Button type="link" danger onClick={() => this.disconnect(key)}>
+						<Button type="link" danger onClick={() => this.disconnect(serverName)}>
 							断开
 						</Button>
-						<Button type="link" danger onClick={() => this.delete(key)}>
+						<Button type="link" danger onClick={() => this.delete(serverName)}>
 							删除
 						</Button>
 					</div>
@@ -52,31 +52,40 @@ export default class ServerList extends Component {
 		return data;
 	}
 
-	update(key: string) {
-		Event.emit("update", key);
+	update(serverName: string) {
+		Event.emit("update", serverName);
 	}
 
-	connect(key: string) {
+	serverName = "";
+	connect(serverName: string) {
+		this.serverName = serverName;
+		this.onChooseOpen();
+	}
+
+	disconnect(serverName: string) {
 		this.onClose();
-		Event.emit("connect", key);
+		Event.emit("disconnect", serverName);
 	}
 
-	disconnect(key: string) {
-		this.onClose();
-		Event.emit("disconnect", key);
-	}
-
-	delete(key: string) {
+	delete(serverName: string) {
 		Modal.confirm({
-			title: `确定要删除 ${key} 的配置吗`,
+			title: `确定要删除 ${serverName} 的配置吗`,
 			okText: "确认",
 			cancelText: "取消",
 			onOk: () => {
-				Config.delete(key);
+				Config.delete(serverName);
 				this.setState({ header: this.createHeader() });
-				Event.emit("delete", key);
+				Event.emit("delete", serverName);
 			}
 		});
+	}
+
+	onChooseClose() {
+		this.setState({ modal: false });
+	}
+
+	onChooseOpen() {
+		this.setState({ modal: true });
 	}
 
 	render() {
@@ -93,7 +102,30 @@ export default class ServerList extends Component {
 				destroyOnClose
 			>
 				{this.state.header}
+				<Modal
+					destroyOnClose
+					title={`选择连接方式`}
+					visible={this.state.modal}
+					className="choose-server"
+					onCancel={() => this.onChooseClose()}
+					closable={true}
+					maskClosable={true}
+					footer={null}
+				>
+					<Button type="dashed" onClick={() => this.choose("normal")}>
+						Normal
+					</Button>
+					<Button type="dashed" onClick={() => this.choose("cluster")}>
+						Cluster
+					</Button>
+				</Modal>
 			</Drawer>
 		);
+	}
+
+	choose(type: string): void {
+		Event.emit("connect", type, this.serverName);
+		this.onChooseClose();
+		this.onClose();
 	}
 }

@@ -12,6 +12,7 @@ package app
 
 import (
 	"sync"
+	"time"
 
 	"github.com/go-redis/redis/v7"
 )
@@ -39,6 +40,7 @@ func (r *redisClient) NewCluster(name string, masterName string, password string
 		MasterName:    masterName,
 		Password:      password,
 		SentinelAddrs: sentinelAddrs,
+		DialTimeout:   3 * time.Second,
 	})
 	err := client.Ping().Err()
 	if err != nil {
@@ -63,6 +65,7 @@ func (r *redisClient) New(name string, addr string, password string) (*redis.Cli
 	var client = redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
+		DialTimeout:   3 * time.Second,
 	})
 	err := client.Ping().Err()
 	if err != nil {

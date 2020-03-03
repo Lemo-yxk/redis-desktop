@@ -1,11 +1,4 @@
-interface config {
-	host: string;
-	port: string;
-	password: string;
-	name: string;
-	master: string;
-	type: string;
-}
+import { config } from "../../interface/config";
 
 class Config {
 	all() {

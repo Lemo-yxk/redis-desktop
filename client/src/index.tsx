@@ -12,13 +12,18 @@ Axios.defaults.baseURL = "http://127.0.0.1:12388";
 
 Axios.defaults.timeout = 5000;
 
-Axios.interceptors.response.use(response => {
-	return response;
-});
+Axios.interceptors.response.use(
+	response => {
+		return response;
+	},
+	error => {
+		return error;
+	}
+);
 
 message.config({ maxCount: 3 });
 
-notification.config({ duration: 2 });
+notification.config({ duration: 2, placement: "bottomRight" });
 
 ReactDOM.render(<App />, document.getElementById("root"));
 
