@@ -18,6 +18,7 @@ export default class KeyTree extends Component {
 		dataTree: []
 	};
 
+	dataTree: any = [];
 	serverName = "";
 	databases = "";
 	db = "请选择DB";
@@ -28,18 +29,75 @@ export default class KeyTree extends Component {
 		Event.add("disconnect", serverName => this.disconnect(serverName));
 		Event.add("update", serverName => this.update(serverName));
 		Event.add("delete", serverName => this.delete(serverName));
+		Event.add("deleteKey", key => this.deleteKey(key));
+		Event.add("insertKey", key => this.insertKey(key));
 
 		WebSocket.listen("scan", (e: any, v: any) => {
 			for (let index = 0; index < v.length; index++) {
 				this.addDataTree(v[index]);
 			}
-			this.setState({ dataTree: this.createDataTree() });
 			console.log(this.dataTree);
+			this.setState({ dataTree: this.createDataTree() });
 		});
 
 		this.connect("normal", "127.0.0.1");
 		this.selectDB(0);
 	}
+
+	insertKey(key: any): void {
+		this.addDataTree(key);
+		this.setState({ dataTree: this.createDataTree() });
+	}
+
+	deleteKey(key: any) {
+		let params = key.split(":");
+		let temp = this.dataTree;
+		let k = -1;
+		var link = [];
+		for (let index = 0; index < params.length; index++) {
+			for (let i = 0; i < temp.length; i++) {
+				if (temp[i]["i"] === params[index] && temp[i].children) {
+					if (index !== params.length - 1) {
+						link.unshift(temp);
+						temp = temp[i].children;
+					} else {
+						break;
+					}
+				}
+			}
+		}
+
+		for (let i = 0; i < temp.length; i++) {
+			if (temp[i].name === key) {
+				k = i;
+				break;
+			}
+		}
+
+		temp.splice(k, 1);
+
+		if (temp.length === 0) {
+			for (let i = 0; i < link.length; i++) {
+				var p = link[i];
+
+				for (let j = 0; j < p.length; j++) {
+					const t = p[j];
+					if (t.children && t.children.length === 0) {
+						// delete link[i][j];
+						link[i].splice(j, 1);
+						// if (link[i].length === 0) {
+						// 	link[i]
+						// }
+						console.log(t);
+					}
+				}
+			}
+		}
+
+		this.setState({ dataTree: this.createDataTree() });
+	}
+
+	find(key: string) {}
 
 	componentWillUnmount() {
 		Event.remove("connect");
@@ -51,11 +109,12 @@ export default class KeyTree extends Component {
 	async connect(type: string, serverName: any) {
 		this.setState({ select: null, dataTree: [], title: null });
 		this.serverName = serverName;
+		this.dataTree = [];
 		this.db = "请选择DB";
 		this.type = type;
 		let res = await this.login();
 		this.databases = res[1];
-		this.setState({ select: this.createSelect(serverName), title: this.createTitle(serverName) });
+		this.setState({ select: this.createSelect(serverName), title: this.createTitle(serverName, type) });
 	}
 
 	disconnect(serverName: any) {
@@ -74,13 +133,9 @@ export default class KeyTree extends Component {
 		}
 	}
 
-	dataTree: any = [];
-
-	inArr(name: string, arr: any) {
+	inArr(arr: any, i: any) {
 		for (let index = 0; index < arr.length; index++) {
-			if (arr[index]["name"] === name) {
-				return arr[index];
-			}
+			if (arr[index]["i"] === i && arr[index].children) return arr[index];
 		}
 		return false;
 	}
@@ -88,21 +143,27 @@ export default class KeyTree extends Component {
 	addDataTree(key: string) {
 		let params = key.split(":");
 		let temp = this.dataTree;
-		var k = "";
 		for (let index = 0; index < params.length; index++) {
-			k += params[index] + ":";
-			let arr = this.inArr(params[index], temp);
-			if (arr !== false) {
-				temp = arr.children;
-				continue;
+			let arr = this.inArr(temp, params[index]);
+			if (arr) {
+				if (index !== params.length - 1) {
+					temp = arr.children;
+					continue;
+				}
 			}
-			let item = {
-				id: k.slice(0, -1),
-				name: index === params.length - 1 ? key : params[index],
-				children: []
-			};
 
-			if (index === params.length - 1) delete item.children;
+			if (index === params.length - 1) {
+				for (let i = 0; i < temp.length; i++) {
+					if (temp[i].name === key) return;
+				}
+			}
+
+			let item = {
+				id: Math.random().toString(16),
+				name: index === params.length - 1 ? key : params[index],
+				i: params[index],
+				children: index === params.length - 1 ? null : []
+			};
 
 			temp.push(item);
 			temp = item.children;
@@ -127,10 +188,12 @@ export default class KeyTree extends Component {
 		);
 	}
 
-	createTitle(key: string) {
+	createTitle(serverName: string, type: string) {
 		return (
 			<div>
-				<div>{key}</div>
+				<div>
+					{serverName}({this.type})
+				</div>
 				<Button type="link" danger onClick={() => this.refresh()}>
 					刷新
 				</Button>
@@ -138,9 +201,11 @@ export default class KeyTree extends Component {
 		);
 	}
 	refresh(): void {
-		let db = this.db;
-		this.connect(this.type, this.serverName);
-		if (db !== "") this.selectDB(db);
+		// let db = this.db;
+		// this.connect(this.type, this.serverName);
+		// if (db !== "")
+		// this.dataTree = [];
+		this.selectDB(this.db);
 	}
 
 	createSelect(key: any) {

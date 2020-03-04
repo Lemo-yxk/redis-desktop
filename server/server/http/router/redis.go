@@ -26,6 +26,7 @@ func RedisRouter(server *lemo.HttpServerRouter) {
 	server.Group("/Redis").Before(before.Redis, before.Key).Handler(func(handler *lemo.HttpServerRouteHandler) {
 		handler.Post("/Key/type").Handler(redis.Key.Type)
 		handler.Post("/Key/do").Handler(redis.Key.Do)
+		handler.Post("/Key/doPipe").Handler(redis.Key.DoPipe)
 	})
 
 	server.Group("/Redis").Handler(func(handler *lemo.HttpServerRouteHandler) {

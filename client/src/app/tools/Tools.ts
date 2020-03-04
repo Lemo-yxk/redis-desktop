@@ -27,8 +27,10 @@ class Tools {
 		error = error || response.data.msg;
 		if (response.data.code === 200) {
 			notification.success({ message: success });
+			return true;
 		} else {
 			notification.error({ message: error });
+			return false;
 		}
 	}
 }

@@ -1,33 +1,51 @@
 import { config } from "../interface/config";
 import Axios from "axios";
+import Qs from "querystring";
 import Tools from "../tools/Tools";
 
 class Command {
 	async register(type: string, config: config) {
-		return await Axios.post(`/redis/register/${type}`, Tools.QueryString(config as any));
+		return await Axios.post(`/redis/register/${type}`, Qs.stringify(config as any));
 	}
 
 	async selectDB(serverName: string, db: any) {
-		return await Axios.post(`/redis/db/select`, Tools.QueryString({ name: serverName, db }));
+		return await Axios.post(`/redis/db/select`, Qs.stringify({ name: serverName, db }));
 	}
 
 	async scan(serverName: string) {
-		let response = await Axios.post(`/redis/db/scan`, Tools.QueryString({ name: serverName }));
+		let response = await Axios.post(`/redis/db/scan`, Qs.stringify({ name: serverName }));
 		return response.data.msg;
 	}
 
 	async type(serverName: string, key: string) {
-		let response = await Axios.post(`/redis/key/type`, Tools.QueryString({ name: serverName, key: key }));
+		let response = await Axios.post(`/redis/key/type`, Qs.stringify({ name: serverName, key: key }));
 		return response.data.msg;
 	}
 
 	async do(serverName: string, key: string, ...args: any[]) {
 		let response = await Axios.post(
 			`/redis/key/do`,
-			Tools.QueryString({
+			Qs.stringify({
 				name: serverName,
 				key: key,
 				args: args.join(" ")
+			})
+		);
+
+		if (response.data.code !== 200) {
+			return Tools.Notification(response);
+		}
+
+		return response.data.msg;
+	}
+
+	async doPipe(serverName: string, key: string, ...args: any[]) {
+		let response = await Axios.post(
+			`/redis/key/do`,
+			Qs.stringify({
+				name: serverName,
+				key: key,
+				args: JSON.stringify(args)
 			})
 		);
 

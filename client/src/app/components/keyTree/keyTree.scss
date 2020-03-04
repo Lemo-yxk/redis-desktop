@@ -9,13 +9,13 @@
 		justify-content: space-between;
 		align-items: flex-start;
 		flex-direction: column;
-		height: 32px;
+		height: 42px;
 		width: 100%;
 		padding: 5px;
 	}
 
 	.data-tree {
-		height: calc(100% - 64px);
+		height: calc(100% - 84px);
 		overflow-y: auto;
 		width: 100%;
 
@@ -25,12 +25,14 @@
 	}
 
 	.title {
-		height: 32px;
+		height: 42px;
 		width: 100%;
 		> div {
+			height: 100%;
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
+			padding: 5px;
 		}
 	}
 }

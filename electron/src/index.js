@@ -3,32 +3,45 @@ const path = require("path");
 const child = require("child_process");
 
 function main() {
+	let server = null;
 	// env
 	let dev = !!process.env.NODE_ENV;
+
+	let quit = () => {
+		if (!server) return app.quit();
+
+		if (process.platform === "win32") {
+			child.exec(`taskkill /T /F /PID ${server.pid}`, () => app.quit());
+		} else {
+			child.exec(`kill -9 ${server.pid}`, () => app.quit());
+		}
+	};
+
+	let startServer = () => {
+		if (!dev) {
+			if (process.platform === "win32") {
+				server = child.exec(path.join(__dirname, "server.exe"));
+			} else {
+				server = child.exec(path.join(__dirname, "server"));
+			}
+		}
+	};
 
 	// Handle creating/removing shortcuts on Windows when installing/uninstalling.
 	if (require("electron-squirrel-startup")) {
 		console.log("on electron-squirrel-startup");
 		// eslint-disable-line global-require
-		app.quit();
+		return quit();
 	}
 
-	let server = null;
-
-	if (!dev) {
-		if (process.platform === "win32") {
-			server = child.exec(path.join(__dirname, "server.exe"));
-		} else {
-			server = child.exec(path.join(__dirname, "server"));
-		}
-	}
+	startServer();
 
 	const createWindow = () => {
 		console.log("create window");
 
 		// Create the browser window.
 		let size = screen.getPrimaryDisplay().workAreaSize;
-		let width = size.width * 0.6;
+		let width = size.width * 0.8;
 		let height = size.height * 0.8;
 
 		const mainWindow = new BrowserWindow({
@@ -50,7 +63,41 @@ function main() {
 		if (dev) mainWindow.webContents.openDevTools();
 	};
 
-	Menu.setApplicationMenu(null);
+	if (process.platform === "darwin") {
+		const template = [
+			{
+				label: "Application",
+				submenu: [
+					{
+						label: "Quit",
+						accelerator: "Command+Q",
+						click: () => {
+							quit();
+						}
+					}
+				]
+			},
+			{
+				label: "Edit",
+				submenu: [
+					{ label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+					{ label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+					{ type: "separator" },
+					{ label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+					{ label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+					{ label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+					{ label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+				]
+			},
+			{
+				label: "Dev",
+				submenu: [{ label: "Open Dev Tools", role: "toggleDevTools" }]
+			}
+		];
+		Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+	} else {
+		Menu.setApplicationMenu(null);
+	}
 
 	app.allowRendererProcessReuse = true;
 
@@ -72,14 +119,7 @@ function main() {
 		// On OS X it is common for applications and their menu bar
 		// to stay active until the user quits explicitly with Cmd + Q
 		// if (process.platform !== "darwin") {}
-
-		if (!server) return app.quit();
-
-		if (process.platform === "win32") {
-			child.exec(`taskkill /T /F /PID ${server.pid}`, () => app.quit());
-		} else {
-			child.exec(`kill -9 ${server.pid}`, () => app.quit());
-		}
+		return quit();
 	});
 
 	app.on("activate", () => {

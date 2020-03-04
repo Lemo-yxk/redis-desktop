@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Event from "../../../event/Event";
 import Transform from "../../../transform/Transform";
 import "./string.scss";
-import { Input, Button, Select } from "antd";
+import { Input, Button, Select, Modal } from "antd";
 const { TextArea } = Input;
 
 const Option = Select.Option;
@@ -16,23 +16,41 @@ export default class String extends Component {
 		Event.remove("string");
 	}
 
-	state = { key: "", value: "" };
+	state = { key: "", value: "", rename: false };
 
 	serverName = "";
 	type = "";
+	value = "";
+	key = "";
 
 	async select(serverName: string, type: string, key: string) {
 		this.serverName = serverName;
 		this.type = type;
-
+		this.key = key;
 		let value = await Transform.select(serverName, type, key);
-
+		this.value = value;
 		this.setState({ key: key, value });
 	}
 
 	render() {
 		return (
 			<div className="string">
+				<Modal
+					visible={this.state.rename}
+					maskClosable={false}
+					closable={false}
+					onOk={() => this.rename()}
+					onCancel={() => this.closeRename()}
+					width={300}
+					okText="确定"
+					cancelText="取消"
+				>
+					<Input
+						spellCheck={false}
+						value={this.state.key}
+						onChange={value => this.setState({ key: value.target.value })}
+					></Input>
+				</Modal>
 				<div className="top">
 					<div className="top">
 						<Input
@@ -41,8 +59,12 @@ export default class String extends Component {
 							value={this.state.key}
 							spellCheck={false}
 						/>
-						<Button type="default">重命名</Button>
-						<Button type="primary">刷新</Button>
+						<Button type="default" onClick={() => this.openRename()}>
+							重命名
+						</Button>
+						<Button type="primary" onClick={() => this.select(this.serverName, this.type, this.state.key)}>
+							刷新
+						</Button>
 						<Button type="dashed" danger>
 							删除
 						</Button>
@@ -73,6 +95,33 @@ export default class String extends Component {
 				</div>
 			</div>
 		);
+	}
+
+	async insert(serverName: string, type: string, key: string, value: string) {
+		return await Transform.insert(serverName, type, key, value);
+	}
+
+	async delete(serverName: string, type: string, key: string) {
+		return await Transform.delete(serverName, type, key);
+	}
+
+	async rename() {
+		var r = await Transform.rename(this.serverName, this.key, this.state.key);
+		if (!r) return this.closeRename;
+
+		Event.emit("deleteKey", this.key);
+		Event.emit("insertKey", this.state.key);
+
+		this.key = this.state.key;
+		this.closeRename();
+	}
+
+	closeRename(): void {
+		this.setState({ rename: false });
+	}
+
+	openRename(): void {
+		this.setState({ rename: true });
 	}
 
 	onChange(value: string): void {
