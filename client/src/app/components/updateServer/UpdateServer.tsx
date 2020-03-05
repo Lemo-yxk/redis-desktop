@@ -8,6 +8,7 @@ import "./updateServer.scss";
 import Command from "../../services/Command";
 import { MinusCircleOutlined } from "@ant-design/icons";
 import Tools from "../../tools/Tools";
+import Layer from "../layer/Layer";
 
 export default class UpdateServer extends Component {
 	state = { visible: false, config: {} as config, type: "normal", clusterHostInput: null };
@@ -157,9 +158,9 @@ export default class UpdateServer extends Component {
 
 	async test() {
 		this.state.config.cluster = this.state.config.cluster.filter(v => v !== "");
-		message.loading({ content: `正在连接 ${this.state.config.name} ...`, duration: 0 });
+		Layer.load();
 		let response = await Command.register(this.state.type, this.state.config);
-		message.destroy();
+		Layer.close();
 		return Tools.Notification(response, "连接成功");
 	}
 

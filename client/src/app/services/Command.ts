@@ -8,6 +8,10 @@ class Command {
 		return await Axios.post(`/redis/register/${type}`, Qs.stringify(config as any));
 	}
 
+	async disconnect(serverName: string) {
+		return await Axios.post(`/redis/db/disconnect`, Qs.stringify({ name: serverName }));
+	}
+
 	async selectDB(serverName: string, db: any) {
 		return await Axios.post(`/redis/db/select`, Qs.stringify({ name: serverName, db }));
 	}

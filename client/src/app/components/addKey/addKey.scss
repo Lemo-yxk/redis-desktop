@@ -1,0 +1,60 @@
+.add-key {
+	.select-box {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		.ant-radio-group {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+
+			.ant-radio-button-wrapper {
+				width: 20%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+		}
+	}
+
+	.input-box {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		flex-direction: column;
+
+		> .ant-input-group-wrapper {
+			margin-top: 10px;
+
+			.ant-input-group-addon {
+				width: 60px;
+			}
+		}
+	}
+
+	.button-box {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		margin-top: 20px;
+		button {
+			margin: 0 20px;
+		}
+	}
+
+	.ant-input:hover {
+		border: 1px solid #d9d9d9 !important;
+	}
+
+	.ant-input:focus,
+	.ant-input-focused {
+		border: 1px solid #d9d9d9 !important;
+		outline: none;
+		-webkit-box-shadow: unset;
+		box-shadow: unset;
+	}
+}

@@ -21,6 +21,7 @@ func RedisRouter(server *lemo.HttpServerRouter) {
 	server.Group("/Redis").Before(before.Redis).Handler(func(handler *lemo.HttpServerRouteHandler) {
 		handler.Post("/DB/scan").Handler(redis.DB.Scan)
 		handler.Post("/DB/select").Handler(redis.DB.Select)
+		handler.Post("/DB/disconnect").Handler(redis.DB.Disconnect)
 	})
 
 	server.Group("/Redis").Before(before.Redis, before.Key).Handler(func(handler *lemo.HttpServerRouteHandler) {

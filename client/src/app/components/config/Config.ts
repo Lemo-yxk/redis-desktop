@@ -1,6 +1,14 @@
 import { config } from "../../interface/config";
 
 class Config {
+	getCurrent() {
+		return JSON.parse(localStorage.getItem("current") || "{}");
+	}
+
+	setCurrent(cfg: config) {
+		localStorage.setItem("current", JSON.stringify(cfg));
+	}
+
 	all() {
 		return JSON.parse(localStorage.getItem("config") || "{}");
 	}

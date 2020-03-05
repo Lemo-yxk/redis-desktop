@@ -2,4 +2,9 @@
 	width: 100%;
 	height: 100%;
 	padding: 10px;
+	overflow: hidden;
+}
+
+.ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab {
+	margin: 0 5px;
 }

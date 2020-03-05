@@ -3,6 +3,7 @@ import { Drawer, Button, Modal } from "antd";
 import Event from "../../event/Event";
 import "./serverList.scss";
 import Config from "../config/Config";
+import Command from "../../services/Command";
 
 export default class ServerList extends Component {
 	state = { visible: false, modal: false, header: this.createHeader() };
@@ -65,6 +66,7 @@ export default class ServerList extends Component {
 	disconnect(serverName: string) {
 		this.onClose();
 		Event.emit("disconnect", serverName);
+		Command.disconnect(serverName);
 	}
 
 	delete(serverName: string) {

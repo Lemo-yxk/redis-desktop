@@ -35,3 +35,12 @@ func (r *db) Scan(stream *lemo.Stream) exception.ErrorFunc {
 	services.Scan(client)
 	return stream.JsonFormat("SUCCESS", 200, nil)
 }
+
+func (r *db) Disconnect(stream *lemo.Stream) exception.ErrorFunc {
+
+	var name = stream.Form.Get("name").String()
+
+	var client = app.Redis().Get(name)
+
+	return stream.JsonFormat("SUCCESS", 200, client.Close())
+}

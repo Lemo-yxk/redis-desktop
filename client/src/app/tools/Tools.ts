@@ -1,4 +1,5 @@
 import { notification, message } from "antd";
+import Layer from "../components/layer/Layer";
 class Tools {
 	QueryString(data: { [key: string]: string }) {
 		let s = "";
@@ -21,6 +22,7 @@ class Tools {
 			let error = response.toJSON();
 			notification.error({ message: error.message });
 			message.destroy();
+			Layer.close();
 			throw error;
 		}
 		success = success || response.data.msg;

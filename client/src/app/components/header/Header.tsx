@@ -1,30 +1,29 @@
 import React, { Component } from "react";
-import { Button } from "antd";
+import { Button, Progress } from "antd";
 import "./header.scss";
 import Event from "../../event/Event";
-import { AlignLeftOutlined } from "@ant-design/icons";
-import WebSocket from "../../ws/WebSocket";
+import { AlignLeftOutlined, PlusOutlined } from "@ant-design/icons";
 
 export default class Header extends Component {
 	state = { date: "" };
 
-	componentDidMount() {
-		WebSocket.listen("system-time", (event: any, data: any) => {
-			this.setState({ date: data });
-		});
-	}
+	addKey = () => {
+		Event.emit("addKey");
+	};
+
+	componentDidMount() {}
 
 	render() {
 		return (
 			<div className="header">
 				<div className="left">
-					<Button type="primary" onClick={() => Event.emit("openAddServer")}>
-						添加
+					<Button type="link" ghost onClick={this.addKey}>
+						<PlusOutlined />
 					</Button>
 				</div>
 				<div className="right">
-					<Button type="link" danger>
-						{this.state.date}
+					<Button type="primary" onClick={() => Event.emit("openAddServer")}>
+						添加服务器
 					</Button>
 					<Button type="dashed" danger ghost onClick={() => Event.emit("openServerList")}>
 						<AlignLeftOutlined />

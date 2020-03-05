@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { Rnd } from "react-rnd";
 import "./keyTree.scss";
-import { Select, Button, message } from "antd";
+import { Select, Button, message, notification } from "antd";
 import Tools from "../../tools/Tools";
 import Event from "../../event/Event";
 import Config from "../config/Config";
 import WebSocket from "../../ws/WebSocket";
 import { Treebeard } from "react-treebeard";
 import Command from "../../services/Command";
+import Layer from "../layer/Layer";
 
 const Option = Select.Option;
 
@@ -24,7 +25,9 @@ export default class KeyTree extends Component {
 	db = "请选择DB";
 	type = "";
 
-	componentDidMount() {
+	baseKeys: string[] = [];
+
+	async componentDidMount() {
 		Event.add("connect", (type, serverName) => this.connect(type, serverName));
 		Event.add("disconnect", serverName => this.disconnect(serverName));
 		Event.add("update", serverName => this.update(serverName));
@@ -33,20 +36,52 @@ export default class KeyTree extends Component {
 		Event.add("insertKey", key => this.insertKey(key));
 
 		WebSocket.listen("scan", (e: any, v: any) => {
-			for (let index = 0; index < v.length; index++) {
-				this.addDataTree(v[index]);
+			let keys = v.keys;
+			for (let index = 0; index < keys.length; index++) {
+				this.baseKeys.push(keys[index]);
+				this.addDataTree(keys[index]);
 			}
-			console.log(this.dataTree);
+
+			Event.emit("progress", v.current / v.dbSize);
+
 			this.setState({ dataTree: this.createDataTree() });
+
+			// read done
+			if (v.dbSize === v.current) {
+				Event.emit("progress", 0);
+				this.readDone();
+			}
 		});
 
-		this.connect("normal", "127.0.0.1");
+		await this.connect("normal", "127.0.0.1");
 		this.selectDB(0);
 	}
 
 	insertKey(key: any): void {
 		this.addDataTree(key);
 		this.setState({ dataTree: this.createDataTree() });
+	}
+
+	readDone() {
+		message.success("数据加载成功");
+		if (this.shouldRefresh) {
+			this.checkRead(this.dataTree);
+		}
+		this.shouldRefresh = false;
+	}
+
+	checkRead(data: any[]) {
+		for (let i = 0; i < data.length; i++) {
+			if (data[i].children) {
+				this.checkRead(data[i].children);
+			} else {
+				if (!data[i].read) {
+					this.deleteKey(data[i].name);
+				} else {
+					data[i].read = false;
+				}
+			}
+		}
 	}
 
 	deleteKey(key: any) {
@@ -79,16 +114,10 @@ export default class KeyTree extends Component {
 		if (temp.length === 0) {
 			for (let i = 0; i < link.length; i++) {
 				var p = link[i];
-
 				for (let j = 0; j < p.length; j++) {
 					const t = p[j];
 					if (t.children && t.children.length === 0) {
-						// delete link[i][j];
 						link[i].splice(j, 1);
-						// if (link[i].length === 0) {
-						// 	link[i]
-						// }
-						console.log(t);
 					}
 				}
 			}
@@ -96,8 +125,6 @@ export default class KeyTree extends Component {
 
 		this.setState({ dataTree: this.createDataTree() });
 	}
-
-	find(key: string) {}
 
 	componentWillUnmount() {
 		Event.remove("connect");
@@ -113,7 +140,10 @@ export default class KeyTree extends Component {
 		this.db = "请选择DB";
 		this.type = type;
 		let res = await this.login();
-		this.databases = res[1];
+		if (!res) return;
+		this.databases = res;
+		notification.success({ message: "连接成功" });
+		Config.setCurrent(Config.get(serverName));
 		this.setState({ select: this.createSelect(serverName), title: this.createTitle(serverName, type) });
 	}
 
@@ -140,21 +170,41 @@ export default class KeyTree extends Component {
 		return false;
 	}
 
+	inArr1(arr: any, i: any): any {
+		for (let index = 0; index < arr.length; index++) {
+			if (arr[index].i === i && !arr[index].children) return { parent: arr, current: arr[index] };
+		}
+		return false;
+	}
+
 	addDataTree(key: string) {
 		let params = key.split(":");
 		let temp = this.dataTree;
 		for (let index = 0; index < params.length; index++) {
-			let arr = this.inArr(temp, params[index]);
-			if (arr) {
-				if (index !== params.length - 1) {
-					temp = arr.children;
-					continue;
+			if (params.length === 1) {
+				var arr = this.inArr1(temp, params[index]);
+				if (arr.parent) {
+					arr.current.read = true;
+					return;
 				}
 			}
 
-			if (index === params.length - 1) {
-				for (let i = 0; i < temp.length; i++) {
-					if (temp[i].name === key) return;
+			if (params.length !== 1) {
+				var arr = this.inArr(temp, params[index]);
+				if (arr) {
+					if (index !== params.length - 1) {
+						temp = arr.children;
+						continue;
+					}
+				}
+
+				if (index === params.length - 1) {
+					for (let i = 0; i < temp.length; i++) {
+						if (temp[i].name === key) {
+							temp[i].read = true;
+							return;
+						}
+					}
 				}
 			}
 
@@ -162,7 +212,8 @@ export default class KeyTree extends Component {
 				id: Math.random().toString(16),
 				name: index === params.length - 1 ? key : params[index],
 				i: params[index],
-				children: index === params.length - 1 ? null : []
+				children: index === params.length - 1 ? null : [],
+				read: this.shouldRefresh
 			};
 
 			temp.push(item);
@@ -200,11 +251,10 @@ export default class KeyTree extends Component {
 			</div>
 		);
 	}
+
+	shouldRefresh = false;
 	refresh(): void {
-		// let db = this.db;
-		// this.connect(this.type, this.serverName);
-		// if (db !== "")
-		// this.dataTree = [];
+		this.shouldRefresh = true;
 		this.selectDB(this.db);
 	}
 
@@ -270,19 +320,22 @@ export default class KeyTree extends Component {
 	}
 
 	async login() {
-		message.loading({ content: `正在连接 ${this.serverName} ...`, duration: 0 });
+		Layer.load();
 		let cfg = Config.get(this.serverName);
 		let response = await Command.register(this.type, cfg);
-		Tools.Notification(response, "连接成功");
-		message.destroy();
-		return response.data.msg;
+		Layer.close();
+		if (response.data.code !== 200) {
+			Tools.Notification(response);
+			return false;
+		}
+		return response.data.msg[1];
 	}
 
 	async selectDB(db: any) {
 		this.db = db;
-		this.setState({ select: this.createSelect(this.serverName) });
 		let response = await Command.selectDB(this.serverName, db);
 		if (response.data.code !== 200) return Tools.Notification(response);
+		this.setState({ select: this.createSelect(this.serverName) });
 		await Command.scan(this.serverName);
 	}
 }

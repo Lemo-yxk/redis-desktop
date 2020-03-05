@@ -19,19 +19,27 @@ import (
 )
 
 func Scan(client *redis2.Client) {
+
+	var dbSize = client.DBSize().Val()
+
 	var res []string
 
-	for result := range redis.Scan(client, "*", 100) {
+	var counter = 0
+
+	for result := range redis.Scan(client, "*", 1000) {
 
 		res = append(res, result.Result())
-		if len(res) == 100 {
+		if len(res) == 1000 {
+			counter += 1000
 			app.Socket().JsonFormatAll(lemo.JsonPackage{
 				Event:   "scan",
-				Message: res[:100],
+				Message: lemo.M{"dbSize": dbSize, "current": counter, "keys": res[:1000]},
 			})
-			res = res[100:]
+			res = res[1000:]
 		}
 	}
+
+	counter += len(res)
 
 	if len(res) == 0 {
 		return
@@ -39,6 +47,6 @@ func Scan(client *redis2.Client) {
 
 	app.Socket().JsonFormatAll(lemo.JsonPackage{
 		Event:   "scan",
-		Message: res,
+		Message: lemo.M{"dbSize": dbSize, "current": counter, "keys": res},
 	})
 }

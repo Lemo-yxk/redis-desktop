@@ -1,0 +1,13 @@
+.progress {
+	position: absolute;
+	width: 100%;
+	height: 1px;
+	bottom: 12px;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	> .ant-progress-outer {
+		height: 3px;
+	}
+}
