@@ -145,7 +145,7 @@ export default class AddServer extends Component {
 			cluster: this.cluster.filter(v => v !== "")
 		};
 
-		console.log(data);
+		// console.log(data);
 
 		let response = await Command.register(this.state.type, data);
 

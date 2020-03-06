@@ -33,9 +33,9 @@ func CreateData() {
 	}
 
 	var value = 0
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20; i++ {
 		for j := 0; j < 10; j++ {
-			for k := 0; k < 500; k++ {
+			for k := 0; k < 10; k++ {
 				value++
 				var key = fmt.Sprintf("%d:%d:%d", i, j, k)
 				client.Do("SET", key, value)
@@ -43,6 +43,9 @@ func CreateData() {
 			}
 		}
 	}
+	// for i := 0; i < 10000; i++ {
+	// 	client.LPush("1",i)
+	// }
 }
 
 func DeleteData() {

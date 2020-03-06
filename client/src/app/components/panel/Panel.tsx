@@ -53,7 +53,7 @@ export default class Panel extends Component {
 	}
 
 	onChange = (activeKey: any) => {
-		console.log(activeKey);
+		// console.log(activeKey);
 		this.setState({ activeKey });
 	};
 

@@ -9,121 +9,95 @@ import WebSocket from "../../ws/WebSocket";
 import { Treebeard } from "react-treebeard";
 import Command from "../../services/Command";
 import Layer from "../layer/Layer";
+import DataTree from "./Tree";
 
 const Option = Select.Option;
 
 export default class KeyTree extends Component {
 	state = {
-		select: null,
-		title: null,
-		dataTree: []
+		databases: [] as any[],
+		dataTree: [] as any[],
+		db: "请选择DB" as any
 	};
 
-	dataTree: any = [];
 	serverName = "";
-	databases = "";
-	db = "请选择DB";
 	type = "";
+	dbSize = 0;
 
-	baseKeys: string[] = [];
+	updateTree() {
+		this.setState({ dataTree: DataTree.dataTree });
+	}
+
+	updateDatabases() {
+		for (let i = 0; i < this.state.databases.length; i++) {
+			if (this.state.databases[i].key === this.state.db) {
+				this.state.databases[i].size = this.dbSize;
+			}
+		}
+		this.setState({ databases: this.state.databases });
+	}
 
 	async componentDidMount() {
 		Event.add("connect", (type, serverName) => this.connect(type, serverName));
 		Event.add("disconnect", serverName => this.disconnect(serverName));
 		Event.add("update", serverName => this.update(serverName));
 		Event.add("delete", serverName => this.delete(serverName));
-		Event.add("deleteKey", key => this.deleteKey(key));
-		Event.add("insertKey", key => this.insertKey(key));
+		Event.add("deleteKey", (key, fn) => this.deleteKey(key, fn));
+		Event.add("insertKey", (key, fn) => this.insertKey(key, this.shouldRefresh, fn));
 
 		WebSocket.listen("scan", (e: any, v: any) => {
-			let keys = v.keys;
+			let keys = v.keys || [];
 			for (let index = 0; index < keys.length; index++) {
-				this.baseKeys.push(keys[index]);
-				this.addDataTree(keys[index]);
+				DataTree.addKey(keys[index], this.shouldRefresh);
 			}
 
-			Event.emit("progress", v.current / v.dbSize);
+			Event.emit("progress", (v.current / v.dbSize) * 100);
 
-			this.setState({ dataTree: this.createDataTree() });
+			this.dbSize = v.dbSize;
 
 			// read done
 			if (v.dbSize === v.current) {
 				Event.emit("progress", 0);
 				this.readDone();
 			}
+			// render tree
+			this.updateTree();
+
+			// render databases
+			this.updateDatabases();
+
+			// console.log(this.state.dataTree);
 		});
 
 		await this.connect("normal", "127.0.0.1");
 		this.selectDB(0);
 	}
 
-	insertKey(key: any): void {
-		this.addDataTree(key);
-		this.setState({ dataTree: this.createDataTree() });
+	deleteKey(key: string, fn: any) {
+		DataTree.deleteKey(key);
+		this.dbSize--;
+		fn && fn();
+		this.updateDatabases();
+		this.updateTree();
+	}
+
+	insertKey(key: string, isRead: boolean, fn: any) {
+		DataTree.addKey(key, this.shouldRefresh);
+		this.dbSize++;
+		fn && fn();
+		this.updateDatabases();
+		this.updateTree();
 	}
 
 	readDone() {
-		message.success("数据加载成功");
+		message.info("数据加载成功");
 		if (this.shouldRefresh) {
-			this.checkRead(this.dataTree);
+			var notRead = DataTree.checkRead(DataTree.dataTree);
+			for (let i = 0; i < notRead.length; i++) {
+				DataTree.deleteNode(notRead[i]);
+			}
 		}
 		this.shouldRefresh = false;
-	}
-
-	checkRead(data: any[]) {
-		for (let i = 0; i < data.length; i++) {
-			if (data[i].children) {
-				this.checkRead(data[i].children);
-			} else {
-				if (!data[i].read) {
-					this.deleteKey(data[i].name);
-				} else {
-					data[i].read = false;
-				}
-			}
-		}
-	}
-
-	deleteKey(key: any) {
-		let params = key.split(":");
-		let temp = this.dataTree;
-		let k = -1;
-		var link = [];
-		for (let index = 0; index < params.length; index++) {
-			for (let i = 0; i < temp.length; i++) {
-				if (temp[i]["i"] === params[index] && temp[i].children) {
-					if (index !== params.length - 1) {
-						link.unshift(temp);
-						temp = temp[i].children;
-					} else {
-						break;
-					}
-				}
-			}
-		}
-
-		for (let i = 0; i < temp.length; i++) {
-			if (temp[i].name === key) {
-				k = i;
-				break;
-			}
-		}
-
-		temp.splice(k, 1);
-
-		if (temp.length === 0) {
-			for (let i = 0; i < link.length; i++) {
-				var p = link[i];
-				for (let j = 0; j < p.length; j++) {
-					const t = p[j];
-					if (t.children && t.children.length === 0) {
-						link[i].splice(j, 1);
-					}
-				}
-			}
-		}
-
-		this.setState({ dataTree: this.createDataTree() });
 	}
 
 	componentWillUnmount() {
@@ -135,21 +109,30 @@ export default class KeyTree extends Component {
 
 	async connect(type: string, serverName: any) {
 		this.setState({ select: null, dataTree: [], title: null });
+		this.state.dataTree = [];
+		this.state.databases = [];
+		this.state.db = "请选择DB";
 		this.serverName = serverName;
-		this.dataTree = [];
-		this.db = "请选择DB";
 		this.type = type;
+		this.dbSize = 0;
+		DataTree.dataTree = [];
 		let res = await this.login();
 		if (!res) return;
-		this.databases = res;
-		notification.success({ message: "连接成功" });
+
+		for (let i = 0; i < parseInt(res); i++) {
+			this.state.databases.push({ title: `db-${i}`, key: i, size: 0 });
+		}
+
+		message.success("连接成功");
+
 		Config.setCurrent(Config.get(serverName));
-		this.setState({ select: this.createSelect(serverName), title: this.createTitle(serverName, type) });
+
+		this.updateDatabases();
 	}
 
 	disconnect(serverName: any) {
 		if (this.serverName === serverName) {
-			this.setState({ select: null, dataTree: [], title: null });
+			this.setState({ select: [], dataTree: [], title: null });
 		}
 	}
 
@@ -159,65 +142,7 @@ export default class KeyTree extends Component {
 
 	delete(serverName: any) {
 		if (this.serverName === serverName) {
-			this.setState({ select: null, dataTree: [], title: null });
-		}
-	}
-
-	inArr(arr: any, i: any) {
-		for (let index = 0; index < arr.length; index++) {
-			if (arr[index]["i"] === i && arr[index].children) return arr[index];
-		}
-		return false;
-	}
-
-	inArr1(arr: any, i: any): any {
-		for (let index = 0; index < arr.length; index++) {
-			if (arr[index].i === i && !arr[index].children) return { parent: arr, current: arr[index] };
-		}
-		return false;
-	}
-
-	addDataTree(key: string) {
-		let params = key.split(":");
-		let temp = this.dataTree;
-		for (let index = 0; index < params.length; index++) {
-			if (params.length === 1) {
-				var arr = this.inArr1(temp, params[index]);
-				if (arr.parent) {
-					arr.current.read = true;
-					return;
-				}
-			}
-
-			if (params.length !== 1) {
-				var arr = this.inArr(temp, params[index]);
-				if (arr) {
-					if (index !== params.length - 1) {
-						temp = arr.children;
-						continue;
-					}
-				}
-
-				if (index === params.length - 1) {
-					for (let i = 0; i < temp.length; i++) {
-						if (temp[i].name === key) {
-							temp[i].read = true;
-							return;
-						}
-					}
-				}
-			}
-
-			let item = {
-				id: Math.random().toString(16),
-				name: index === params.length - 1 ? key : params[index],
-				i: params[index],
-				children: index === params.length - 1 ? null : [],
-				read: this.shouldRefresh
-			};
-
-			temp.push(item);
-			temp = item.children;
+			this.setState({ select: [], dataTree: [], title: null });
 		}
 	}
 
@@ -232,42 +157,50 @@ export default class KeyTree extends Component {
 				disableDragging={true}
 				className="key-tree"
 			>
-				<div className="select-panel">{this.state.select}</div>
-				<div className="data-tree">{this.state.dataTree}</div>
-				<div className="title">{this.state.title}</div>
-			</Rnd>
-		);
-	}
-
-	createTitle(serverName: string, type: string) {
-		return (
-			<div>
-				<div>
-					{serverName}({this.type})
+				<div className="select-panel">
+					{this.state.databases.length > 0 ? (
+						<Select
+							value={this.state.db}
+							style={{ width: "100%" }}
+							listHeight={600}
+							onSelect={value => this.selectDB(value)}
+						>
+							{this.state.databases.map(v => (
+								<Option key={v.key} value={v.key}>
+									{v.title} {v.size ? `(${v.size})` : ""}
+								</Option>
+							))}
+						</Select>
+					) : null}
 				</div>
-				<Button type="link" danger onClick={() => this.refresh()}>
-					刷新
-				</Button>
-			</div>
+				<div className="data-tree">
+					{this.state.dataTree.length > 0 ? (
+						<Treebeard
+							data={this.state.dataTree}
+							onToggle={(node, toggled) => this.onToggle(node, toggled)}
+							style={this.style}
+							animations={false}
+						/>
+					) : null}
+				</div>
+				<div className="title">
+					<div>
+						<div>
+							{this.serverName}({this.type})
+						</div>
+						<Button type="link" danger onClick={() => this.refresh()}>
+							刷新
+						</Button>
+					</div>
+				</div>
+			</Rnd>
 		);
 	}
 
 	shouldRefresh = false;
 	refresh(): void {
 		this.shouldRefresh = true;
-		this.selectDB(this.db);
-	}
-
-	createSelect(key: any) {
-		return (
-			<Select value={this.db} style={{ width: "100%" }} listHeight={600} onSelect={value => this.selectDB(value)}>
-				{Tools.Range(0, parseInt(this.databases)).map(v => (
-					<Option key={v} value={v}>
-						db({v})
-					</Option>
-				))}
-			</Select>
-		);
+		this.selectDB(this.state.db);
 	}
 
 	style: any = {
@@ -282,17 +215,6 @@ export default class KeyTree extends Component {
 			node: { base: { color: "red" }, activeLink: { backgroundColor: "#bae7ff" } }
 		}
 	};
-
-	createDataTree() {
-		return (
-			<Treebeard
-				data={this.dataTree}
-				onToggle={(node, toggled) => this.onToggle(node, toggled)}
-				style={this.style}
-				animations={false}
-			/>
-		);
-	}
 
 	prev: any;
 
@@ -311,7 +233,7 @@ export default class KeyTree extends Component {
 			this.onSelect(node.name);
 		}
 
-		this.setState(() => ({ dataTree: this.createDataTree() }));
+		this.updateTree();
 	}
 
 	async onSelect(key: string) {
@@ -332,10 +254,10 @@ export default class KeyTree extends Component {
 	}
 
 	async selectDB(db: any) {
-		this.db = db;
+		if (this.state.db !== db) DataTree.dataTree = [];
+		this.state.db = db;
 		let response = await Command.selectDB(this.serverName, db);
 		if (response.data.code !== 200) return Tools.Notification(response);
-		this.setState({ select: this.createSelect(this.serverName) });
 		await Command.scan(this.serverName);
 	}
 }

@@ -11,8 +11,15 @@ export default class MProgress extends Component {
 	componentDidMount() {
 		Event.add("progress", v => this.progress(v));
 	}
+
 	progress(v: number) {
-		this.setState({ progress: v });
+		if (v === 0) {
+			setTimeout(() => {
+				this.setState({ progress: v });
+			}, 1000);
+		} else {
+			this.setState({ progress: v });
+		}
 	}
 
 	state = { progress: 0 };

@@ -41,10 +41,6 @@ func Scan(client *redis2.Client) {
 
 	counter += len(res)
 
-	if len(res) == 0 {
-		return
-	}
-
 	app.Socket().JsonFormatAll(lemo.JsonPackage{
 		Event:   "scan",
 		Message: lemo.M{"dbSize": dbSize, "current": counter, "keys": res},
