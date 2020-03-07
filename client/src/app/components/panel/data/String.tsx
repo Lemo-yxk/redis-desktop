@@ -138,17 +138,8 @@ export default class String extends Component<Props> {
 	}
 	changeView(view: string): void {
 		if (view === "json") {
-			this.state.value = JSON.stringify(JSON.parse(this.state.value), null, 4);
+			this.setState({ view: view, value: JSON.stringify(JSON.parse(this.state.value), null, 4) });
 		}
-		this.setState({ view: view, value: this.state.value });
-	}
-
-	async insert(serverName: string, type: string, key: string, value: string) {
-		return await Transform.insert(serverName, type, key, value);
-	}
-
-	async delete(serverName: string, type: string, key: string) {
-		return await Transform.delete(serverName, type, key);
 	}
 
 	async deleteKey() {

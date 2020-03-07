@@ -22,7 +22,7 @@ export default class MProgress extends Component {
 		}
 	}
 
-	state = { progress: 0 };
+	state = { progress: 100 };
 
 	render() {
 		return (

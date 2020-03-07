@@ -14,6 +14,8 @@ class WebSocket {
 
 		this.ws.onOpen = () => {
 			console.log("on open");
+			localStorage.setItem("status", "ready");
+			window.location.hash = "#/index";
 		};
 
 		this.ws.onError = (err: any) => {
@@ -21,6 +23,8 @@ class WebSocket {
 		};
 
 		this.ws.onClose = () => {
+			localStorage.removeItem("status");
+			window.location.hash = "#/login";
 			console.log("on close");
 		};
 	}
@@ -37,6 +41,10 @@ class WebSocket {
 
 	listen(...args: any[]) {
 		this.ws.addListener(...args);
+	}
+
+	remove(...args: any[]) {
+		this.ws.removeListener(...args);
 	}
 }
 

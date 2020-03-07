@@ -1,12 +1,15 @@
 import React from "react";
-import { Button } from "antd";
 import "./login.scss";
+import { LoadingOutlined } from "@ant-design/icons";
 
 function Login() {
 	return (
 		<div className="login">
 			<div className="content">
-				<Button type="default">Button</Button>
+				<div className="loading">
+					<LoadingOutlined style={{ fontSize: "2rem" }}></LoadingOutlined>
+					<div className="tips">正在准备...</div>
+				</div>
 			</div>
 		</div>
 	);

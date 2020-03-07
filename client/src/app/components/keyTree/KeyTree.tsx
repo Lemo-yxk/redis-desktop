@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import { Rnd } from "react-rnd";
 import "./keyTree.scss";
-import { Select, Button, message, notification } from "antd";
+import { Select, Button, message } from "antd";
 import Tools from "../../tools/Tools";
 import Event from "../../event/Event";
 import Config from "../config/Config";
 import WebSocket from "../../ws/WebSocket";
-import { Treebeard } from "react-treebeard";
+import { Treebeard } from "react-treebeard-ts";
 import Command from "../../services/Command";
 import Layer from "../layer/Layer";
 import DataTree from "./Tree";
@@ -24,17 +24,22 @@ export default class KeyTree extends Component {
 	type = "";
 	dbSize = 0;
 
+	// constructor(props: any) {
+	// 	super(props);
+	// }
+
 	updateTree() {
 		this.setState({ dataTree: DataTree.dataTree });
 	}
 
 	updateDatabases() {
-		for (let i = 0; i < this.state.databases.length; i++) {
-			if (this.state.databases[i].key === this.state.db) {
-				this.state.databases[i].size = this.dbSize;
+		let { databases } = this.state;
+		for (let i = 0; i < databases.length; i++) {
+			if (databases[i].key === this.state.db) {
+				databases[i].size = this.dbSize;
 			}
 		}
-		this.setState({ databases: this.state.databases });
+		this.setState({ databases: databases });
 	}
 
 	async componentDidMount() {
@@ -47,11 +52,12 @@ export default class KeyTree extends Component {
 
 		WebSocket.listen("scan", (e: any, v: any) => {
 			let keys = v.keys || [];
+
+			Event.emit("progress", (v.current / v.dbSize) * 100);
+
 			for (let index = 0; index < keys.length; index++) {
 				DataTree.addKey(keys[index], this.shouldRefresh);
 			}
-
-			Event.emit("progress", (v.current / v.dbSize) * 100);
 
 			this.dbSize = v.dbSize;
 
@@ -65,8 +71,6 @@ export default class KeyTree extends Component {
 
 			// render databases
 			this.updateDatabases();
-
-			// console.log(this.state.dataTree);
 		});
 
 		await this.connect("normal", "127.0.0.1");
@@ -94,7 +98,7 @@ export default class KeyTree extends Component {
 		if (this.shouldRefresh) {
 			var notRead = DataTree.checkRead(DataTree.dataTree);
 			for (let i = 0; i < notRead.length; i++) {
-				DataTree.deleteNode(notRead[i]);
+				DataTree.deleteKey(notRead[i].name);
 			}
 		}
 		this.shouldRefresh = false;
@@ -105,6 +109,10 @@ export default class KeyTree extends Component {
 		Event.remove("disconnect");
 		Event.remove("update");
 		Event.remove("delete");
+		Event.remove("deleteKey");
+		Event.remove("insertKey");
+		WebSocket.remove("scan");
+		DataTree.dataTree = [];
 	}
 
 	async connect(type: string, serverName: any) {
@@ -149,9 +157,9 @@ export default class KeyTree extends Component {
 	render() {
 		return (
 			<Rnd
-				default={{ height: "100%", width: "20%", x: 0, y: 0 }}
-				minWidth={"20%"}
-				maxWidth={"40%"}
+				default={{ height: "100%", width: "250px", x: 0, y: 0 }}
+				minWidth={250}
+				maxWidth={500}
 				bounds=".content"
 				enableResizing={{ right: true }}
 				disableDragging={true}
@@ -186,7 +194,7 @@ export default class KeyTree extends Component {
 				<div className="title">
 					<div>
 						<div>
-							{this.serverName}({this.type})
+							{this.serverName} {this.type}
 						</div>
 						<Button type="link" danger onClick={() => this.refresh()}>
 							刷新
@@ -218,7 +226,7 @@ export default class KeyTree extends Component {
 
 	prev: any;
 
-	onToggle(node: import("react-treebeard").TreeNode, toggled: boolean): void {
+	onToggle(node: import("react-treebeard-ts").TreeNode, toggled: boolean): void {
 		if (this.prev) {
 			this.prev.active = false;
 		}

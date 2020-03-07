@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Progress } from "antd";
+import { Button } from "antd";
 import "./header.scss";
 import Event from "../../event/Event";
 import { AlignLeftOutlined, PlusOutlined } from "@ant-design/icons";

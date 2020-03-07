@@ -11,8 +11,6 @@
 package redis
 
 import (
-	"strings"
-
 	"github.com/Lemo-yxk/lemo"
 	"github.com/Lemo-yxk/lemo/exception"
 	"github.com/Lemo-yxk/lemo/utils"
@@ -42,15 +40,13 @@ func (r *key) Type(stream *lemo.Stream) exception.ErrorFunc {
 func (r *key) Do(stream *lemo.Stream) exception.ErrorFunc {
 	var name = stream.Form.Get("name").String()
 	var args = stream.Form.Get("args").String()
-	var arr = strings.Split(args, " ")
-	var arrInterface []interface{}
-	for i := 0; i < len(arr); i++ {
-		arrInterface = append(arrInterface, arr[i])
-	}
+
+	var cmd []interface{}
+	utils.Json.Decode([]byte(args), &cmd)
 
 	var client = app.Redis().Get(name)
 
-	var res = client.Do(arrInterface...)
+	var res = client.Do(cmd...)
 
 	if res.Err() != nil {
 		return stream.JsonFormat("ERROR", 404, res.Err())
@@ -63,7 +59,7 @@ func (r *key) DoPipe(stream *lemo.Stream) exception.ErrorFunc {
 	var name = stream.Form.Get("name").String()
 	var args = stream.Form.Get("args").String()
 
-	var cmd []string
+	var cmd [][]interface{}
 	utils.Json.Decode([]byte(args), &cmd)
 
 	var client = app.Redis().Get(name)
@@ -71,12 +67,7 @@ func (r *key) DoPipe(stream *lemo.Stream) exception.ErrorFunc {
 	var pipe = client.TxPipeline()
 
 	for i := 0; i < len(cmd); i++ {
-		var arr = strings.Split(cmd[i], " ")
-		var arrInterface []interface{}
-		for i := 0; i < len(arr); i++ {
-			arrInterface = append(arrInterface, arr[i])
-		}
-		pipe.Do(arrInterface...)
+		pipe.Do(cmd[i]...)
 	}
 
 	var res, err = pipe.Exec()

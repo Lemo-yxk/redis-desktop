@@ -14,11 +14,12 @@
 		"@types/react-rnd": "^8.0.0",
 		"@types/react-router-dom": "^5.1.3",
 		"@types/react-tabs": "^2.3.1",
+		"@types/react-virtualized": "^9.21.8",
 		"antd": "^4.0.0",
 		"axios": "^0.19.2",
 		"babel-plugin-import": "^1.13.0",
 		"customize-cra": "^0.9.1",
-		"lows": "^1.0.15",
+		"lows": "^1.1.1",
 		"node-sass": "^4.13.1",
 		"qs": "^6.9.1",
 		"react": "^16.13.0",
@@ -28,7 +29,8 @@
 		"react-router-dom": "^5.1.2",
 		"react-scripts": "3.4.0",
 		"react-tabs": "^3.1.0",
-		"react-treebeard": "^3.2.4",
+		"react-treebeard-ts": "^3.2.5",
+		"react-virtualized": "^9.21.2",
 		"typescript": "~3.7.2"
 	},
 	"scripts": {

@@ -1,8 +1,7 @@
 import React, { Component } from "react";
-import { Drawer, Radio, Input, Button, notification, Modal, message } from "antd";
+import { Radio, Input, Button, Modal, message } from "antd";
 import Event from "../../event/Event";
 import "./addKey.scss";
-import Command from "../../services/Command";
 import Transform from "../../transform/Transform";
 import Config from "../config/Config";
 import { config } from "../../interface/config";

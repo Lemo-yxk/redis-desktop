@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, Menu } = require("electron");
+const { app, BrowserWindow, screen, Menu, globalShortcut } = require("electron");
 const path = require("path");
 const child = require("child_process");
 
@@ -36,15 +36,17 @@ function main() {
 
 	startServer();
 
+	let mainWindow = null;
+
 	const createWindow = () => {
 		console.log("create window");
 
 		// Create the browser window.
-		let size = screen.getPrimaryDisplay().workAreaSize;
+		let size = screen.getPrimaryDisplay().size;
 		let width = size.width * 0.8;
 		let height = size.height * 0.8;
 
-		const mainWindow = new BrowserWindow({
+		mainWindow = new BrowserWindow({
 			width: dev ? size.width * 1 : width,
 			height: height,
 			webPreferences: {
@@ -105,6 +107,19 @@ function main() {
 	// initialization and is ready to create browser windows.
 	// Some APIs can only be used after this event occurs.
 	app.on("ready", () => {
+		// 注册一个 'CommandOrControl+X' 的全局快捷键
+		const ret = globalShortcut.register("CommandOrControl+P", () => {
+			mainWindow.webContents.openDevTools();
+			console.log("CommandOrControl+P is pressed");
+		});
+
+		if (!ret) {
+			console.log("registration failed");
+		}
+
+		// 检查快捷键是否注册成功
+		console.log(globalShortcut.isRegistered("CommandOrControl+X"));
+
 		console.log("on ready");
 		console.log("main pid", process.pid);
 		if (server) {

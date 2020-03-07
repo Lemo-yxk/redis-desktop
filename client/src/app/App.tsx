@@ -10,7 +10,7 @@ export default class App extends Component {
 	unlisten!: UnregisterCallback;
 
 	change(location: Location<History.PoorMansUnknown>) {
-		if (false) return (window.location.hash = "/login");
+		if (!localStorage.getItem("status")) return (window.location.hash = "/login");
 		if (location.hash === "#/login") return (window.location.hash = "/index");
 	}
 

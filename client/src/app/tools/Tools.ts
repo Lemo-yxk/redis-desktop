@@ -20,6 +20,7 @@ class Tools {
 	Notification(response: any, success?: any, error?: any) {
 		if (response.isAxiosError) {
 			let error = response.toJSON();
+			console.log(error);
 			notification.error({ message: error.message });
 			message.destroy();
 			Layer.close();
@@ -28,6 +29,7 @@ class Tools {
 		success = success || response.data.msg;
 		error = error || response.data.msg;
 		if (response.data.code === 200) {
+			console.log(response.data);
 			notification.success({ message: success });
 			return true;
 		} else {

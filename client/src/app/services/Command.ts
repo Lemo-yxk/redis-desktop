@@ -4,8 +4,8 @@ import Qs from "querystring";
 import Tools from "../tools/Tools";
 
 class Command {
-	async register(type: string, config: config) {
-		return await Axios.post(`/redis/register/${type}`, Qs.stringify(config as any));
+	async register(type: string, cfg: config) {
+		return await Axios.post(`/redis/register/${type}`, Qs.stringify(cfg as {}));
 	}
 
 	async disconnect(serverName: string) {
@@ -26,13 +26,13 @@ class Command {
 		return response.data.msg;
 	}
 
-	async do(serverName: string, key: string, ...args: any[]) {
+	async do(serverName: string, key: string, args: any[]) {
 		let response = await Axios.post(
 			`/redis/key/do`,
 			Qs.stringify({
 				name: serverName,
 				key: key,
-				args: args.join(" ")
+				args: JSON.stringify(args)
 			})
 		);
 
@@ -43,7 +43,7 @@ class Command {
 		return response.data.msg;
 	}
 
-	async doPipe(serverName: string, key: string, ...args: any[]) {
+	async doPipe(serverName: string, key: string, args: any[][]) {
 		let response = await Axios.post(
 			`/redis/key/do`,
 			Qs.stringify({

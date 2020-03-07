@@ -32,7 +32,7 @@ export default class AddServer extends Component {
 	port = "";
 	password = "";
 	master = "";
-	cluster = new Array();
+	cluster: any[] = [];
 
 	render() {
 		return (
@@ -144,8 +144,6 @@ export default class AddServer extends Component {
 			master: this.master,
 			cluster: this.cluster.filter(v => v !== "")
 		};
-
-		// console.log(data);
 
 		let response = await Command.register(this.state.type, data);
 

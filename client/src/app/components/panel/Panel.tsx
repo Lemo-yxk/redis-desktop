@@ -15,24 +15,10 @@ export default class Panel extends Component {
 				this.setState({ activeKey: key });
 				return;
 			}
-			let component = null;
-
-			switch (type) {
-				case "string":
-					component = this.createString(serverName, type, key);
-					break;
-				case "list":
-					component = <List></List>;
-					break;
-				case "hash":
-					break;
-				case "zset":
-					break;
-				case "set":
-					break;
-			}
 
 			const { panes } = this.state;
+
+			let component = this.createComponent(serverName, type, key);
 
 			panes.push({ title: key, content: component, key: key });
 
@@ -42,8 +28,32 @@ export default class Panel extends Component {
 		});
 	}
 
+	createComponent(serverName: string, type: string, key: string) {
+		let component = null;
+
+		switch (type) {
+			case "string":
+				component = this.createString(serverName, type, key);
+				break;
+			case "list":
+				component = this.createList(serverName, type, key);
+				break;
+			case "hash":
+				break;
+			case "zset":
+				break;
+			case "set":
+				break;
+		}
+		return component;
+	}
+
 	createString(serverName: string, type: string, key: string) {
 		return <String parent={this} serverName={serverName} type={type} keys={key}></String>;
+	}
+
+	createList(serverName: string, type: string, key: string) {
+		return <List parent={this} serverName={serverName} type={type} keys={key}></List>;
 	}
 
 	componentDidMount() {}
@@ -53,7 +63,6 @@ export default class Panel extends Component {
 	}
 
 	onChange = (activeKey: any) => {
-		// console.log(activeKey);
 		this.setState({ activeKey });
 	};
 
@@ -71,7 +80,7 @@ export default class Panel extends Component {
 			if (element.key === oldKey) {
 				element.title = newKey;
 				element.key = newKey;
-				element.content = this.createString(serverName, type, newKey);
+				element.content = this.createComponent(serverName, type, newKey);
 			}
 		}
 		this.setState({ panes: this.state.panes, activeKey: newKey });

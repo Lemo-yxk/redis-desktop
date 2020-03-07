@@ -9,5 +9,19 @@
 		width: 100vw;
 		height: 100vh;
 		background: #eeeeee;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		.loading {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+
+			.tips {
+				margin-top: 10px;
+			}
+		}
 	}
 }

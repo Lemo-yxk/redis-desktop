@@ -62,7 +62,7 @@ class Tree {
 
 	inArr1(arr: any, i: any): any {
 		for (let index = 0; index < arr.length; index++) {
-			if (arr[index].id === i) return { parent: arr, current: arr[index] };
+			if (arr[index].i === i && !arr[index].children) return { parent: arr, current: arr[index] };
 		}
 		return false;
 	}
@@ -73,9 +73,9 @@ class Tree {
 		var parent = null;
 		for (let index = 0; index < params.length; index++) {
 			if (params.length === 1) {
-				var arr = this.inArr1(temp, params[index]);
-				if (arr.parent) {
-					arr.current.read = true;
+				var arr1 = this.inArr1(temp, params[index]);
+				if (arr1) {
+					arr1.current.read = true;
 					return;
 				}
 			}

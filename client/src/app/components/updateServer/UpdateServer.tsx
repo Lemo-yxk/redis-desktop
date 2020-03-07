@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Modal from "antd/lib/modal/Modal";
 import Event from "../../event/Event";
-import { Radio, Input, Button, notification, message } from "antd";
+import { Radio, Input, Button, message } from "antd";
 import Config from "../config/Config";
 import { config } from "../../interface/config";
 import "./updateServer.scss";
@@ -22,10 +22,6 @@ export default class UpdateServer extends Component {
 	}
 
 	serverName = "";
-
-	constructor(props: any) {
-		super(props);
-	}
 
 	componentDidMount() {
 		Event.add("openUpdateServer", serverName => {
@@ -138,8 +134,9 @@ export default class UpdateServer extends Component {
 				placeholder="127.0.0.1:16379"
 				value={this.state.config.cluster[i]}
 				onChange={value => {
-					this.state.config.cluster[i] = value.target.value;
-					this.setState({ config: this.state.config, clusterHostInput: this.createCluster() });
+					let cfg = this.state.config;
+					cfg.cluster[i] = value.target.value;
+					this.setState({ config: cfg, clusterHostInput: this.createCluster() });
 				}}
 			/>
 		));
@@ -166,7 +163,8 @@ export default class UpdateServer extends Component {
 
 	submit() {
 		Config.delete(this.serverName);
-		this.state.config.cluster = this.state.config.cluster.filter(v => v !== "");
+		let cfg = this.state.config;
+		cfg.cluster = cfg.cluster.filter(v => v !== "");
 		Config.set(this.state.config.name, this.state.config);
 		message.success("修改成功");
 		this.onClose();
