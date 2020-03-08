@@ -42,7 +42,7 @@ export default class String extends Component<Props> {
 		let value = await Transform.select(type, key);
 		let ttl = await Transform.ttl(key);
 		this.ttl = ttl;
-		this.setState({ key: key, value });
+		this.setState({ key: key, showValue: value });
 	}
 
 	render() {
@@ -115,9 +115,15 @@ export default class String extends Component<Props> {
 				</div>
 				<div className="bottom">
 					<div className="top">
-						<Button type="primary" onClick={() => this.save()}>
-							保存
-						</Button>
+						<Popconfirm
+							title={`确定要保存吗?`}
+							onConfirm={() => this.save()}
+							okText="确定"
+							cancelText="取消"
+							icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+						>
+							<Button type="primary">保存</Button>
+						</Popconfirm>
 					</div>
 					<div className="bottom"></div>
 				</div>
@@ -180,6 +186,6 @@ export default class String extends Component<Props> {
 	}
 
 	onChange(value: string): void {
-		this.setState({ value: value });
+		this.setState({ showValue: value });
 	}
 }

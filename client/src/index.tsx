@@ -28,6 +28,10 @@ notification.config({ duration: 2, placement: "bottomRight" });
 
 // create uuid
 if (!Config.getUUID()) Config.createUUID();
+Config.delDB();
+Config.delServerName();
+Config.delCurrent();
+Config.delStatus();
 
 ReactDOM.render(<App />, document.getElementById("root"));
 

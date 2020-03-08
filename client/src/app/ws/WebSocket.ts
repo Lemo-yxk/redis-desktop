@@ -19,7 +19,7 @@ class WebSocket {
 		};
 
 		this.ws.AddListener("/redis/login/login", (e: any, data: any) => {
-			localStorage.setItem("status", "ready");
+			Config.setStatus("ready");
 			window.location.hash = "#/index";
 		});
 
@@ -28,7 +28,7 @@ class WebSocket {
 		};
 
 		this.ws.OnClose = () => {
-			localStorage.removeItem("status");
+			Config.delStatus();
 			window.location.hash = "#/login";
 			console.log("on close");
 		};

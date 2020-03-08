@@ -7,15 +7,15 @@ import Config from "../config/Config";
 import { config } from "../../interface/config";
 
 export default class AddKey extends Component {
-	state = { visible: false, keyType: "string", key: "", value: "" };
+	state = { visible: false, keyType: "string", key: "", k: "", v: "" };
 
 	onClose() {
-		this.setState({ visible: false });
+		this.setState({ visible: false, key: "", k: "", v: "" });
 	}
 
 	onOpen() {
 		this.config = Config.getCurrent();
-		if (this.config.name === "") {
+		if (!this.config.name) {
 			message.error("请连接服务器!");
 			return this.onClose();
 		}
@@ -31,6 +31,75 @@ export default class AddKey extends Component {
 	}
 
 	config: config = {} as config;
+
+	createNormal() {
+		return (
+			<div className="input-box-2">
+				<div className="top">
+					<Input
+						spellCheck={false}
+						addonBefore="KEY"
+						placeholder="key"
+						value={this.state.key}
+						onChange={value => this.setState({ key: value.target.value })}
+					/>
+				</div>
+				<div className="bottom">
+					<Input
+						spellCheck={false}
+						addonBefore="VALUE"
+						placeholder="value"
+						value={this.state.v}
+						onChange={value => this.setState({ v: value.target.value })}
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	createSpecial() {
+		return (
+			<div className="input-box-3">
+				<div className="top">
+					<Input
+						spellCheck={false}
+						addonBefore="KEY"
+						placeholder="key"
+						value={this.state.key}
+						onChange={value => this.setState({ key: value.target.value })}
+					/>
+				</div>
+				<div className="bottom">
+					<Input
+						spellCheck={false}
+						placeholder="k"
+						value={this.state.k}
+						onChange={value => this.setState({ k: value.target.value })}
+					/>
+					<Input
+						spellCheck={false}
+						placeholder="v"
+						value={this.state.v}
+						onChange={value => this.setState({ v: value.target.value })}
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	createComponent() {
+		switch (this.state.keyType) {
+			case "string":
+			case "list":
+			case "set":
+				return this.createNormal();
+			case "hash":
+			case "zset":
+				return this.createSpecial();
+			default:
+				return;
+		}
+	}
 
 	render() {
 		return (
@@ -50,29 +119,13 @@ export default class AddKey extends Component {
 					>
 						<Radio.Button value="string">string</Radio.Button>
 						<Radio.Button value="list">list</Radio.Button>
-						<Radio.Button value="hash">hash</Radio.Button>
 						<Radio.Button value="set">set</Radio.Button>
+						<Radio.Button value="hash">hash</Radio.Button>
 						<Radio.Button value="zset">zset</Radio.Button>
 					</Radio.Group>
 				</div>
 
-				<div className="input-box">
-					<Input
-						spellCheck={false}
-						addonBefore="KEY"
-						placeholder="key"
-						value={this.state.key}
-						onChange={value => this.setState({ key: value.target.value })}
-					/>
-
-					<Input
-						spellCheck={false}
-						addonBefore="Value"
-						placeholder="value"
-						value={this.state.value}
-						onChange={value => this.setState({ value: value.target.value })}
-					/>
-				</div>
+				{this.createComponent()}
 
 				<div className="button-box">
 					<Button type="primary" onClick={() => this.add()}>
@@ -87,25 +140,27 @@ export default class AddKey extends Component {
 		);
 	}
 	async add() {
-		if (this.state.key === "") {
-			message.error("KEY不能为空!");
-			return;
-		}
+		if (this.state.key === "") message.error("请填写完整!");
 
-		if (this.state.value === "") {
-			message.error("VALUE不能为空!");
-			return;
-		}
+		if (this.state.v === "") message.error("请填写完整!");
 
 		switch (this.state.keyType) {
 			case "string":
-				let r = await Transform.insert(this.config.name, this.state.keyType, this.state.key, this.state.value);
-				if (!r) return;
+			case "list":
+			case "set":
+				let n = await Transform.insert(this.state.keyType, this.state.key, this.state.v);
+				if (!n) return;
+				message.success("添加成功!");
+				break;
+			case "hash":
+			case "zset":
+				if (this.state.k === "") return message.error("请填写完整!");
+				let s = await Transform.insert(this.state.keyType, this.state.key, this.state.k, this.state.v);
+				if (!s) return;
 				message.success("添加成功!");
 				break;
 			default:
-				message.error("不支持的类型!");
-				break;
+				return message.error("不支持的类型!");
 		}
 
 		Event.emit("insertKey", this.state.key);

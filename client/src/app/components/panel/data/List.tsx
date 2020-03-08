@@ -202,7 +202,15 @@ export default class List extends Component<Props> {
 									json
 								</Option>
 							</Select>
-							<Button onClick={() => this.delRow()}>删除行</Button>
+							<Popconfirm
+								title={`确定要删除 ${this.state.showValue} 吗?`}
+								onConfirm={() => this.delRow()}
+								okText="确定"
+								cancelText="取消"
+								icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+							>
+								<Button>删除行</Button>
+							</Popconfirm>
 							<Button onClick={() => this.openAddRow()}>添加行</Button>
 						</div>
 
@@ -257,9 +265,15 @@ export default class List extends Component<Props> {
 							<Button onClick={this.go}>GO</Button>
 						</div>
 						<div className="right">
-							<Button type="primary" onClick={() => this.save()}>
-								保存
-							</Button>
+							<Popconfirm
+								title={`确定要保存吗?`}
+								onConfirm={() => this.save()}
+								okText="确定"
+								cancelText="取消"
+								icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+							>
+								<Button type="primary">保存</Button>
+							</Popconfirm>
 						</div>
 					</div>
 					<div className="bottom"></div>

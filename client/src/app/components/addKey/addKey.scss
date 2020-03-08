@@ -19,18 +19,59 @@
 		}
 	}
 
-	.input-box {
+	.input-box-2 {
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		width: 100%;
 		flex-direction: column;
 
-		> .ant-input-group-wrapper {
+		> .top,
+		.bottom > .ant-input-group-wrapper {
 			margin-top: 10px;
 
 			.ant-input-group-addon {
-				width: 60px;
+				width: 80px;
+			}
+		}
+
+		> .top {
+			width: 100%;
+		}
+
+		> .bottom {
+			width: 100%;
+		}
+	}
+
+	.input-box-3 {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		flex-direction: column;
+
+		> .top,
+		.bottom > .ant-input-group-wrapper {
+			margin-top: 10px;
+
+			.ant-input-group-addon {
+				width: 80px;
+			}
+		}
+
+		> .top {
+			width: 100%;
+		}
+
+		> .bottom {
+			width: 100%;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-top: 10px;
+			> input {
+				width: 49.5%;
 			}
 		}
 	}

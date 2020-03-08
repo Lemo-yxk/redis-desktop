@@ -39,6 +39,18 @@ class Config {
 		localStorage.removeItem("db");
 	}
 
+	setStatus(status: any) {
+		localStorage.setItem("status", status);
+	}
+
+	getStatus() {
+		return localStorage.getItem("status");
+	}
+
+	delStatus() {
+		localStorage.removeItem("status");
+	}
+
 	createUUID() {
 		localStorage.setItem(
 			"uuid",

@@ -5,12 +5,13 @@ import "./App.scss";
 import Index from "./pages/index/Index";
 import Login from "./pages/login/Login";
 import WebSocket from "./ws/WebSocket";
+import Config from "./components/config/Config";
 
 export default class App extends Component {
 	unlisten!: UnregisterCallback;
 
 	change(location: Location<History.PoorMansUnknown>) {
-		if (!localStorage.getItem("status")) return (window.location.hash = "/login");
+		if (!Config.getStatus()) return (window.location.hash = "/login");
 		if (location.hash === "#/login") return (window.location.hash = "/index");
 	}
 
