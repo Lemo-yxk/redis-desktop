@@ -14,9 +14,11 @@ export default class App extends Component {
 		if (location.hash === "#/login") return (window.location.hash = "/index");
 	}
 
+	state = { start: false };
+
 	constructor(props: any) {
 		super(props);
-		WebSocket.start();
+		WebSocket.start(() => this.setState({ start: true }));
 	}
 
 	componentDidMount() {
@@ -39,7 +41,7 @@ export default class App extends Component {
 	}
 
 	render() {
-		return (
+		return this.state.start ? (
 			<HashRouter>
 				<Switch>
 					<Route path="/index" component={Index} />
@@ -47,6 +49,6 @@ export default class App extends Component {
 					<Redirect from="**" to="/index" />
 				</Switch>
 			</HashRouter>
-		);
+		) : null;
 	}
 }

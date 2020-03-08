@@ -2,6 +2,8 @@ github.com/Lemo-yxk/lemo v0.0.0-20200226143452-d267deb33699 h1:/Atdf/f60ZPuNjO9b
 github.com/Lemo-yxk/lemo v0.0.0-20200226143452-d267deb33699/go.mod h1:OcF4naQfWKZnrFcCSnUXR83ONP2eBldyJlg+WJ8sFtM=
 github.com/Lemo-yxk/lemo v0.0.0-20200302192816-c9a5ea97c450 h1:G+kTDvOXWzD/a43qmiwU54nCqZVxvQhfW3f8sUglCjg=
 github.com/Lemo-yxk/lemo v0.0.0-20200302192816-c9a5ea97c450/go.mod h1:OcF4naQfWKZnrFcCSnUXR83ONP2eBldyJlg+WJ8sFtM=
+github.com/Lemo-yxk/lemo v0.0.0-20200308045757-032144b1198e h1:xaR7rRSWyDWUagukY+u0UQDtJdauuSjW3Eifkl5Uw/8=
+github.com/Lemo-yxk/lemo v0.0.0-20200308045757-032144b1198e/go.mod h1:OcF4naQfWKZnrFcCSnUXR83ONP2eBldyJlg+WJ8sFtM=
 github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a h1:idn718Q4B6AGu/h5Sxe66HYVdqdGu2l9Iebqhi/AEoA=
 github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

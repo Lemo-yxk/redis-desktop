@@ -18,19 +18,19 @@ import (
 )
 
 func RedisRouter(server *lemo.HttpServerRouter) {
-	server.Group("/Redis").Before(before.Redis).Handler(func(handler *lemo.HttpServerRouteHandler) {
+	server.Group("/Redis").Before(before.UUID,before.Redis).Handler(func(handler *lemo.HttpServerRouteHandler) {
 		handler.Post("/DB/scan").Handler(redis.DB.Scan)
 		handler.Post("/DB/select").Handler(redis.DB.Select)
 		handler.Post("/DB/disconnect").Handler(redis.DB.Disconnect)
 	})
 
-	server.Group("/Redis").Before(before.Redis, before.Key).Handler(func(handler *lemo.HttpServerRouteHandler) {
+	server.Group("/Redis").Before(before.UUID,before.Redis, before.Key).Handler(func(handler *lemo.HttpServerRouteHandler) {
 		handler.Post("/Key/type").Handler(redis.Key.Type)
 		handler.Post("/Key/do").Handler(redis.Key.Do)
 		handler.Post("/Key/doPipe").Handler(redis.Key.DoPipe)
 	})
 
-	server.Group("/Redis").Handler(func(handler *lemo.HttpServerRouteHandler) {
+	server.Group("/Redis").Before(before.UUID).Handler(func(handler *lemo.HttpServerRouteHandler) {
 		handler.Post("/Register/cluster").Handler(redis.Register.Cluster)
 		handler.Post("/Register/normal").Handler(redis.Register.Normal)
 	})

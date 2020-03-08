@@ -18,7 +18,7 @@ import (
 	"server/pkg/redis"
 )
 
-func Scan(client *redis2.Client) {
+func Scan(client *redis2.Client, uuid string) {
 
 	var dbSize = client.DBSize().Val()
 
@@ -41,8 +41,13 @@ func Scan(client *redis2.Client) {
 
 	counter += len(res)
 
-	app.Socket().JsonFormatAll(lemo.JsonPackage{
-		Event:   "scan",
-		Message: lemo.M{"dbSize": dbSize, "current": counter, "keys": res},
-	})
+	var conn = app.Connection().Get(uuid)
+
+	if conn != nil {
+		conn.JsonFormat(lemo.JsonPackage{
+			Event:   "scan",
+			Message: lemo.M{"dbSize": dbSize, "current": counter, "keys": res},
+		})
+	}
+
 }

@@ -2,35 +2,55 @@ import { config } from "../interface/config";
 import Axios from "axios";
 import Qs from "querystring";
 import Tools from "../tools/Tools";
+import Config from "../components/config/Config";
+import { notification } from "antd";
 
 class Command {
+	serverNameAndDB(): any {
+		let name = Config.getServerName();
+		let db = Config.getDB();
+		if (name === null) return notification.error({ message: "请连接服务!" });
+		if (db === null) return notification.error({ message: "请选择DB!" });
+		return { name, db };
+	}
+
+	uuid() {
+		let uuid = Config.getUUID();
+		if (!uuid) return notification.error({ message: "uuid is empty!" });
+		return { uuid };
+	}
+
 	async register(type: string, cfg: config) {
-		return await Axios.post(`/redis/register/${type}`, Qs.stringify(cfg as {}));
+		return await Axios.post(`/redis/register/${type}`, Qs.stringify({ ...this.uuid(), ...cfg }));
 	}
 
 	async disconnect(serverName: string) {
-		return await Axios.post(`/redis/db/disconnect`, Qs.stringify({ name: serverName }));
+		return await Axios.post(`/redis/db/disconnect`, Qs.stringify({ name: serverName, ...this.uuid() }));
 	}
 
 	async selectDB(serverName: string, db: any) {
-		return await Axios.post(`/redis/db/select`, Qs.stringify({ name: serverName, db }));
+		return await Axios.post(`/redis/db/select`, Qs.stringify({ name: serverName, db, ...this.uuid() }));
 	}
 
-	async scan(serverName: string) {
-		let response = await Axios.post(`/redis/db/scan`, Qs.stringify({ name: serverName }));
+	async scan() {
+		let response = await Axios.post(`/redis/db/scan`, Qs.stringify({ ...this.serverNameAndDB(), ...this.uuid() }));
 		return response.data.msg;
 	}
 
-	async type(serverName: string, key: string) {
-		let response = await Axios.post(`/redis/key/type`, Qs.stringify({ name: serverName, key: key }));
+	async type(key: string) {
+		let response = await Axios.post(
+			`/redis/key/type`,
+			Qs.stringify({ ...this.serverNameAndDB(), key: key, ...this.uuid() })
+		);
 		return response.data.msg;
 	}
 
-	async do(serverName: string, key: string, args: any[]) {
+	async do(key: string, args: any[]) {
 		let response = await Axios.post(
 			`/redis/key/do`,
 			Qs.stringify({
-				name: serverName,
+				...this.serverNameAndDB(),
+				...this.uuid(),
 				key: key,
 				args: JSON.stringify(args)
 			})
@@ -43,11 +63,12 @@ class Command {
 		return response.data.msg;
 	}
 
-	async doPipe(serverName: string, key: string, args: any[][]) {
+	async doPipe(key: string, args: any[][]) {
 		let response = await Axios.post(
 			`/redis/key/do`,
 			Qs.stringify({
-				name: serverName,
+				...this.serverNameAndDB(),
+				...this.uuid(),
 				key: key,
 				args: JSON.stringify(args)
 			})

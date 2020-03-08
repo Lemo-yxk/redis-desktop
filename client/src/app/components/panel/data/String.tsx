@@ -10,7 +10,6 @@ const { TextArea } = Input;
 const Option = Select.Option;
 
 type Props = {
-	serverName: string;
 	type: string;
 	keys: string;
 	parent: Panel;
@@ -19,34 +18,29 @@ type Props = {
 export default class String extends Component<Props> {
 	constructor(props: Props) {
 		super(props);
-		this.serverName = this.props.serverName;
 		this.type = this.props.type;
 		this.key = this.props.keys;
 		this.parent = this.props.parent;
 	}
 
 	componentDidMount() {
-		this.select(this.serverName, this.type, this.key);
+		this.select(this.type, this.key);
 	}
 
 	componentWillUnmount() {}
 
 	parent: Panel;
-	state = { key: "", value: "", rename: false, view: "显示格式" };
+	state = { key: "", showValue: "", rename: false, view: "显示格式" };
 
-	serverName = "";
 	type = "";
-	value = "";
 	key = "";
 	ttl = -1;
 
-	async select(serverName: string, type: string, key: string) {
-		this.serverName = serverName;
+	async select(type: string, key: string) {
 		this.type = type;
 		this.key = key;
-		let value = await Transform.select(serverName, type, key);
-		this.value = value;
-		let ttl = await Transform.ttl(serverName, key);
+		let value = await Transform.select(type, key);
+		let ttl = await Transform.ttl(key);
 		this.ttl = ttl;
 		this.setState({ key: key, value });
 	}
@@ -82,7 +76,7 @@ export default class String extends Component<Props> {
 						<Button type="default" onClick={() => this.openRename()}>
 							重命名
 						</Button>
-						<Button type="primary" onClick={() => this.select(this.serverName, this.type, this.state.key)}>
+						<Button type="primary" onClick={() => this.select(this.type, this.state.key)}>
 							刷新
 						</Button>
 						<Popconfirm
@@ -115,7 +109,7 @@ export default class String extends Component<Props> {
 				<div className="content">
 					<TextArea
 						spellCheck={false}
-						value={this.state.value}
+						value={this.state.showValue}
 						onChange={value => this.onChange(value.target.value)}
 					/>
 				</div>
@@ -131,19 +125,35 @@ export default class String extends Component<Props> {
 		);
 	}
 	async save() {
-		let r = await Transform.update(this.serverName, this.type, this.key, this.state.value);
+		let r = await Transform.update(this.type, this.key, this.state.showValue);
 		if (!r) return;
-		this.value = this.state.value;
 		message.success("保存成功");
 	}
 	changeView(view: string): void {
-		if (view === "json") {
-			this.setState({ view: view, value: JSON.stringify(JSON.parse(this.state.value), null, 4) });
+		switch (view) {
+			case "json":
+				try {
+					var v = JSON.parse(this.state.showValue);
+					this.setState({ view: view, showValue: JSON.stringify(v, null, 4) });
+				} catch (error) {
+					return;
+				}
+				break;
+			case "text":
+				try {
+					var v = JSON.parse(this.state.showValue);
+					this.setState({ view: view, showValue: JSON.stringify(v) });
+				} catch (error) {
+					return;
+				}
+				break;
+			default:
+				break;
 		}
 	}
 
 	async deleteKey() {
-		var r = await Transform.delete(this.serverName, this.type, this.state.key);
+		var r = await Transform.delete(this.type, this.state.key);
 		if (!r) return;
 		Event.emit("deleteKey", this.key);
 		this.parent.remove(this.key);
@@ -153,12 +163,12 @@ export default class String extends Component<Props> {
 		let oldKey = this.key;
 		let newKey = this.state.key;
 		this.key = this.state.key;
-		var r = await Transform.rename(this.serverName, oldKey, newKey);
+		var r = await Transform.rename(oldKey, newKey);
 		if (!r) return this.closeRename();
 		Event.emit("insertKey", newKey);
 		Event.emit("deleteKey", oldKey);
 		this.closeRename();
-		this.parent.update(this.serverName, this.type, oldKey, newKey);
+		this.parent.update(this.type, oldKey, newKey);
 	}
 
 	closeRename(): void {

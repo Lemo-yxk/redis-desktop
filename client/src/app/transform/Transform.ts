@@ -20,44 +20,44 @@ class Transform {
 		}
 	}
 
-	select(serverName: string, type: string, key: string, ...args: any[]) {
-		return this.do(serverName, key, this.check(type).select(key, ...args));
+	select(type: string, key: string, ...args: any[]) {
+		return this.do(key, this.check(type).select(key, ...args));
 	}
 
-	update(serverName: string, type: string, key: string, value: any, ...args: any[]) {
-		return this.do(serverName, key, this.check(type).update(key, value, ...args));
+	update(type: string, key: string, value: any, ...args: any[]) {
+		return this.do(key, this.check(type).update(key, value, ...args));
 	}
 
-	insert(serverName: string, type: string, key: string, value: any, ...args: any[]) {
-		return this.do(serverName, key, this.check(type).insert(key, value, ...args));
+	insert(type: string, key: string, value: any, ...args: any[]) {
+		return this.do(key, this.check(type).insert(key, value, ...args));
 	}
 
-	delete(serverName: string, type: string, key: string, ...args: any[]) {
-		return this.do(serverName, key, this.check(type).delete(key, ...args));
+	delete(type: string, key: string, ...args: any[]) {
+		return this.do(key, this.check(type).delete(key, ...args));
 	}
 
-	call(serverName: string, type: string, key: string, method: string, ...args: any[]) {
-		return this.do(serverName, key, this.check(type)[method](key, ...args));
+	call(type: string, key: string, method: string, ...args: any[]) {
+		return this.do(key, this.check(type)[method](key, ...args));
 	}
 
-	ttl(serverName: string, key: string) {
-		return this.do(serverName, key, ["TTL", key]);
+	ttl(key: string) {
+		return this.do(key, ["TTL", key]);
 	}
 
-	rename(serverName: string, key: string, newKey: string) {
-		return this.do(serverName, key, ["RENAME", key, newKey]);
+	rename(key: string, newKey: string) {
+		return this.do(key, ["RENAME", key, newKey]);
 	}
 
-	expire(serverName: string, key: string, seconds: number) {
-		return this.do(serverName, key, ["EXPIRE", key, seconds]);
+	expire(key: string, seconds: number) {
+		return this.do(key, ["EXPIRE", key, seconds]);
 	}
 
-	async doPipe(serverName: string, key: string, cmd: any[][]) {
-		return await Command.doPipe(serverName, key, cmd);
+	async doPipe(key: string, cmd: any[][]) {
+		return await Command.doPipe(key, cmd);
 	}
 
-	async do(serverName: string, key: string, cmd: any[]) {
-		return await Command.do(serverName, key, cmd);
+	async do(key: string, cmd: any[]) {
+		return await Command.do(key, cmd);
 	}
 }
 
@@ -102,7 +102,29 @@ class List {
 	}
 }
 class Hash {
-	select() {}
+	select(key: string, curser: number) {
+		return ["HSCAN", key, curser, "COUNT", 10000];
+	}
+
+	len(key: string) {
+		return ["HLEN", key];
+	}
+
+	update(key: string, k: string, v: string) {
+		return ["HSET", key, k, v];
+	}
+
+	insert(key: string, k: string, v: string) {
+		return ["HSET", key, k, v];
+	}
+
+	delete(key: string, k: string) {
+		return ["HDEL", key, k];
+	}
+
+	remove(key: string) {
+		return ["DEL", key];
+	}
 }
 class Set {
 	select() {}

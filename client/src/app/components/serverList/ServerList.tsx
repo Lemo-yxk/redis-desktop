@@ -78,6 +78,7 @@ export default class ServerList extends Component {
 				Config.delete(serverName);
 				this.setState({ header: this.createHeader() });
 				Event.emit("delete", serverName);
+				Command.disconnect(serverName);
 			}
 		});
 	}

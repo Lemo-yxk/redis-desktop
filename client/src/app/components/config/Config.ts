@@ -9,6 +9,49 @@ class Config {
 		localStorage.setItem("current", JSON.stringify(cfg));
 	}
 
+	delCurrent() {
+		localStorage.removeItem("current");
+	}
+
+	setServerName(setServerName: string) {
+		localStorage.setItem("serverName", setServerName);
+	}
+
+	getServerName() {
+		return localStorage.getItem("serverName");
+	}
+
+	delServerName() {
+		localStorage.removeItem("serverName");
+	}
+
+	setDB(db: number) {
+		localStorage.setItem("db", `${db}`);
+	}
+
+	getDB() {
+		let db = localStorage.getItem("db");
+		if (!db) return null;
+		return parseInt(db);
+	}
+
+	delDB() {
+		localStorage.removeItem("db");
+	}
+
+	createUUID() {
+		localStorage.setItem(
+			"uuid",
+			Math.random()
+				.toString(16)
+				.slice(2)
+		);
+	}
+
+	getUUID() {
+		return localStorage.getItem("uuid");
+	}
+
 	all() {
 		return JSON.parse(localStorage.getItem("config") || "{}");
 	}

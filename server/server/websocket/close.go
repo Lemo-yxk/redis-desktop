@@ -11,9 +11,20 @@
 package websocket
 
 import (
+	"github.com/Lemo-yxk/lemo"
 	"github.com/Lemo-yxk/lemo/console"
+
+	"server/app"
 )
 
-func Close(fd uint32) {
-	console.Log(fd, "close")
+func Close(conn *lemo.WebSocket) {
+
+	for v := range app.Connection().Range() {
+		if v.Value.FD == conn.FD {
+			app.Connection().Del(v.Key)
+			console.Log("delete", v.Key, v.Value.FD)
+		}
+	}
+
+	console.Log(conn.FD, "close")
 }

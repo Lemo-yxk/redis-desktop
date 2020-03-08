@@ -23,6 +23,8 @@ export default class KeyTree extends Component {
 	serverName = "";
 	type = "";
 	dbSize = 0;
+	prev: any = null;
+	shouldRefresh = false;
 
 	// constructor(props: any) {
 	// 	super(props);
@@ -73,8 +75,8 @@ export default class KeyTree extends Component {
 			this.updateDatabases();
 		});
 
-		await this.connect("normal", "127.0.0.1");
-		this.selectDB(0);
+		// await this.connect("normal", "127.0.0.1");
+		// this.selectDB(0);
 	}
 
 	deleteKey(key: string, fn: any) {
@@ -116,16 +118,13 @@ export default class KeyTree extends Component {
 	}
 
 	async connect(type: string, serverName: any) {
-		this.setState({ select: null, dataTree: [], title: null });
-		this.state.dataTree = [];
-		this.state.databases = [];
-		this.state.db = "请选择DB";
-		this.serverName = serverName;
+		this.reset();
 		this.type = type;
-		this.dbSize = 0;
-		DataTree.dataTree = [];
+		this.serverName = serverName;
 		let res = await this.login();
 		if (!res) return;
+
+		Config.setServerName(serverName);
 
 		for (let i = 0; i < parseInt(res); i++) {
 			this.state.databases.push({ title: `db-${i}`, key: i, size: 0 });
@@ -138,9 +137,22 @@ export default class KeyTree extends Component {
 		this.updateDatabases();
 	}
 
+	reset() {
+		DataTree.dataTree = [];
+		this.serverName = "";
+		this.type = "";
+		this.dbSize = 0;
+		this.prev = null;
+		this.shouldRefresh = false;
+		this.setState({ databases: [], dataTree: [], db: "请选择DB" });
+		Config.delDB();
+		Config.delServerName();
+		Config.delCurrent();
+	}
+
 	disconnect(serverName: any) {
 		if (this.serverName === serverName) {
-			this.setState({ select: [], dataTree: [], title: null });
+			this.reset();
 		}
 	}
 
@@ -150,7 +162,7 @@ export default class KeyTree extends Component {
 
 	delete(serverName: any) {
 		if (this.serverName === serverName) {
-			this.setState({ select: [], dataTree: [], title: null });
+			this.reset();
 		}
 	}
 
@@ -205,7 +217,6 @@ export default class KeyTree extends Component {
 		);
 	}
 
-	shouldRefresh = false;
 	refresh(): void {
 		this.shouldRefresh = true;
 		this.selectDB(this.state.db);
@@ -223,8 +234,6 @@ export default class KeyTree extends Component {
 			node: { base: { color: "red" }, activeLink: { backgroundColor: "#bae7ff" } }
 		}
 	};
-
-	prev: any;
 
 	onToggle(node: import("react-treebeard-ts").TreeNode, toggled: boolean): void {
 		if (this.prev) {
@@ -245,7 +254,7 @@ export default class KeyTree extends Component {
 	}
 
 	async onSelect(key: string) {
-		let type = await Command.type(this.serverName, key);
+		let type = await Command.type(key);
 		Event.emit("selectKey", this.serverName, type, key);
 	}
 
@@ -266,6 +275,7 @@ export default class KeyTree extends Component {
 		this.state.db = db;
 		let response = await Command.selectDB(this.serverName, db);
 		if (response.data.code !== 200) return Tools.Notification(response);
-		await Command.scan(this.serverName);
+		Config.setDB(db);
+		await Command.scan();
 	}
 }

@@ -1,50 +1,55 @@
 import Socket from "lows";
+import Config from "../components/config/Config";
 
 class WebSocket {
 	ws: Socket;
 	isStart = false;
 
 	constructor() {
-		this.ws = new Socket();
-
-		this.ws.config = {
+		this.ws = new Socket({
 			host: "http://127.0.0.1",
 			port: "12389"
+		});
+
+		this.ws.Global = { uuid: Config.getUUID() };
+
+		this.ws.OnOpen = () => {
+			console.log("on open");
+			this.ws.Emit("/redis/login/login", {});
 		};
 
-		this.ws.onOpen = () => {
-			console.log("on open");
+		this.ws.AddListener("/redis/login/login", (e: any, data: any) => {
 			localStorage.setItem("status", "ready");
 			window.location.hash = "#/index";
-		};
+		});
 
-		this.ws.onError = (err: any) => {
+		this.ws.OnError = (err: any) => {
 			console.log("on error", err);
 		};
 
-		this.ws.onClose = () => {
+		this.ws.OnClose = () => {
 			localStorage.removeItem("status");
 			window.location.hash = "#/login";
 			console.log("on close");
 		};
 	}
 
-	start() {
-		!this.isStart && this.ws.start();
+	start(fn: any) {
+		!this.isStart && this.ws.Start(fn);
 		this.isStart = true;
 	}
 
 	close() {
-		this.isStart && this.ws.close();
+		this.isStart && this.ws.Close();
 		this.isStart = false;
 	}
 
 	listen(...args: any[]) {
-		this.ws.addListener(...args);
+		this.ws.AddListener(...args);
 	}
 
 	remove(...args: any[]) {
-		this.ws.removeListener(...args);
+		this.ws.RemoveListener(...args);
 	}
 }
 

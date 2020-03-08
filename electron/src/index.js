@@ -49,6 +49,7 @@ function main() {
 		mainWindow = new BrowserWindow({
 			width: dev ? size.width * 1 : width,
 			height: height,
+			icon: path.join(__dirname, "redis.icns"),
 			webPreferences: {
 				nodeIntegration: true
 			}

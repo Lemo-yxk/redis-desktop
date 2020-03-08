@@ -32,6 +32,8 @@ func main() {
 
 	server.Start()
 
+	console.Log("Start Success")
+
 	utils.Signal.ListenKill().Done(func(sig os.Signal) {
 		console.Log("get sig:", sig)
 	})

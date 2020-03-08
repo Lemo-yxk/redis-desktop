@@ -7048,10 +7048,10 @@ lower-case@^2.0.1:
   dependencies:
     tslib "^1.10.0"
 
-lows@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/lows/-/lows-1.1.1.tgz#8e8a0f458d8db557677c0c4173b7e74206b066f8"
-  integrity sha512-SoDy4Fp11xs4V77xb25z/x/g0WIEQeTDvgTVZ2GO6PSZ1OXF/tVArcNiL0aGxPIa+44hy4b+PbtLWULSsYyUCQ==
+lows@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/lows/-/lows-1.1.2.tgz#4c0cfeb3dc86b2272747b6889d7dc2837a99258b"
+  integrity sha512-7v7f9Wr+oKuy9z08Iw9hqNhU5EWXfMBs2cEoYcWcF1vbRVtWejKT3SdLUKKZ3StuLk9FtC2OogRgW20/s5HKEA==
 
 lru-cache@^4.0.1:
   version "4.1.5"

@@ -5,6 +5,7 @@ import "./index.css";
 import App from "./app/App";
 import * as serviceWorker from "./serviceWorker";
 import { message, notification } from "antd";
+import Config from "./app/components/config/Config";
 
 Axios.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
 
@@ -24,6 +25,9 @@ Axios.interceptors.response.use(
 message.config({ maxCount: 3 });
 
 notification.config({ duration: 2, placement: "bottomRight" });
+
+// create uuid
+if (!Config.getUUID()) Config.createUUID();
 
 ReactDOM.render(<App />, document.getElementById("root"));
 

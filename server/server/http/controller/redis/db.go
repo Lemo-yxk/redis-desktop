@@ -32,7 +32,7 @@ func (r *db) Select(stream *lemo.Stream) exception.ErrorFunc {
 func (r *db) Scan(stream *lemo.Stream) exception.ErrorFunc {
 	var name = stream.Form.Get("name").String()
 	var client = app.Redis().Get(name)
-	services.Scan(client)
+	services.Scan(client, stream.Form.Get("uuid").String())
 	return stream.JsonFormat("SUCCESS", 200, nil)
 }
 

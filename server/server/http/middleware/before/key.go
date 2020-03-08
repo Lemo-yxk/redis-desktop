@@ -24,5 +24,10 @@ func Key(stream *lemo.Stream) (lemo.Context, exception.ErrorFunc) {
 		return stream.JsonFormat("ERROR", 404, errMsg), exception.New(errMsg)
 	}
 
+	if !stream.Form.Has("db") {
+		const errMsg = `db is empty`
+		return stream.JsonFormat("ERROR", 404, errMsg), exception.New(errMsg)
+	}
+
 	return nil, nil
 }

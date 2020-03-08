@@ -4,13 +4,16 @@ import Event from "../../event/Event";
 import String from "./data/String";
 import List from "./data/List";
 import { Tabs } from "antd";
+import Hash from "./data/Hash";
 const { TabPane } = Tabs;
 export default class Panel extends Component {
 	state = { activeKey: "", panes: [] as any[] };
-
+	serverName = "";
 	constructor(props: any) {
 		super(props);
 		Event.add("selectKey", (serverName: string, type: string, key: string) => {
+			this.serverName = serverName;
+
 			if (this.state.panes.find(v => v.key === key)) {
 				this.setState({ activeKey: key });
 				return;
@@ -18,7 +21,7 @@ export default class Panel extends Component {
 
 			const { panes } = this.state;
 
-			let component = this.createComponent(serverName, type, key);
+			let component = this.createComponent(type, key);
 
 			panes.push({ title: key, content: component, key: key });
 
@@ -28,17 +31,18 @@ export default class Panel extends Component {
 		});
 	}
 
-	createComponent(serverName: string, type: string, key: string) {
+	createComponent(type: string, key: string) {
 		let component = null;
 
 		switch (type) {
 			case "string":
-				component = this.createString(serverName, type, key);
+				component = this.createString(type, key);
 				break;
 			case "list":
-				component = this.createList(serverName, type, key);
+				component = this.createList(type, key);
 				break;
 			case "hash":
+				component = this.createHash(type, key);
 				break;
 			case "zset":
 				break;
@@ -48,12 +52,16 @@ export default class Panel extends Component {
 		return component;
 	}
 
-	createString(serverName: string, type: string, key: string) {
-		return <String parent={this} serverName={serverName} type={type} keys={key}></String>;
+	createString(type: string, key: string) {
+		return <String parent={this} type={type} keys={key}></String>;
 	}
 
-	createList(serverName: string, type: string, key: string) {
-		return <List parent={this} serverName={serverName} type={type} keys={key}></List>;
+	createList(type: string, key: string) {
+		return <List parent={this} type={type} keys={key}></List>;
+	}
+
+	createHash(type: string, key: string) {
+		return <Hash parent={this} type={type} keys={key}></Hash>;
 	}
 
 	componentDidMount() {}
@@ -74,13 +82,13 @@ export default class Panel extends Component {
 		}
 	};
 
-	update(serverName: string, type: string, oldKey: string, newKey: string) {
+	update(type: string, oldKey: string, newKey: string) {
 		for (let i = 0; i < this.state.panes.length; i++) {
 			const element = this.state.panes[i];
 			if (element.key === oldKey) {
 				element.title = newKey;
 				element.key = newKey;
-				element.content = this.createComponent(serverName, type, newKey);
+				element.content = this.createComponent(type, newKey);
 			}
 		}
 		this.setState({ panes: this.state.panes, activeKey: newKey });

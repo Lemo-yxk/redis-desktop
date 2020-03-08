@@ -17,5 +17,5 @@ import (
 )
 
 func Router(server *lemo.WebSocketServerRouter) {
-	router.SyncRouter(server)
+	router.RedisRouter(server)
 }
