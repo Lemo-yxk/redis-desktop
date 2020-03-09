@@ -171,7 +171,7 @@ export default class String extends Component<Props> {
 		this.key = this.state.key;
 		var r = await Transform.rename(oldKey, newKey);
 		if (!r) return this.closeRename();
-		Event.emit("insertKey", newKey);
+		Event.emit("insertKey", newKey, true);
 		Event.emit("deleteKey", oldKey);
 		this.closeRename();
 		this.parent.update(this.type, oldKey, newKey);

@@ -5,4 +5,6 @@ export interface config {
 	name: string;
 	master: string;
 	cluster: string[];
+	connectType: string;
+	default: boolean;
 }

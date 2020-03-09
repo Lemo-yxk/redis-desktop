@@ -21,9 +21,9 @@ export default class KeyTree extends Component {
 	};
 
 	serverName = "";
-	type = "";
+	connectType = "";
 	dbSize = 0;
-	prev: any = null;
+	selectedNode: any = null;
 	shouldRefresh = false;
 
 	// constructor(props: any) {
@@ -45,12 +45,14 @@ export default class KeyTree extends Component {
 	}
 
 	async componentDidMount() {
-		Event.add("connect", (type, serverName) => this.connect(type, serverName));
+		Event.add("connect", (serverName, connectType, fn) => this.connect(serverName, connectType, fn));
+		Event.add("selectDB", (db, fn) => this.selectDB(db, fn));
 		Event.add("disconnect", serverName => this.disconnect(serverName));
 		Event.add("update", serverName => this.update(serverName));
 		Event.add("delete", serverName => this.delete(serverName));
 		Event.add("deleteKey", (key, fn) => this.deleteKey(key, fn));
-		Event.add("insertKey", (key, fn) => this.insertKey(key, this.shouldRefresh, fn));
+		Event.add("insertKey", (key, isActive, fn) => this.insertKey(key, isActive, fn));
+		Event.add("activeKey", (key, isActive) => this.activeKey(key, isActive));
 
 		WebSocket.listen("scan", (e: any, v: any) => {
 			let keys = v.keys || [];
@@ -75,8 +77,40 @@ export default class KeyTree extends Component {
 			this.updateDatabases();
 		});
 
-		// await this.connect("normal", "127.0.0.1");
-		// this.selectDB(0);
+		this.connectDefault();
+	}
+
+	connectDefault() {
+		var configs = Config.allConfig();
+
+		for (const key in configs) {
+			let config = configs[key];
+			if (config.default) {
+				Event.emit("connect", config.name, config.connectType, () => {
+					Event.emit("selectDB", 0);
+				});
+				break;
+			}
+		}
+	}
+
+	activeKey(key: string, isActive: boolean) {
+		var node = DataTree.search(DataTree.dataTree, key);
+
+		if (!node) return;
+		this.selectedNode.active = false;
+
+		this.selectedNode = node;
+		this.selectedNode.active = isActive;
+		if (isActive) {
+			var temp = node;
+			while (1) {
+				if (!temp.parent) break;
+				temp.parent.toggled = true;
+				temp = temp.parent;
+			}
+		}
+		this.updateTree();
 	}
 
 	deleteKey(key: string, fn: any) {
@@ -87,8 +121,8 @@ export default class KeyTree extends Component {
 		this.updateTree();
 	}
 
-	insertKey(key: string, isRead: boolean, fn: any) {
-		DataTree.addKey(key, this.shouldRefresh);
+	insertKey(key: string, isActive: boolean, fn: any) {
+		DataTree.addKey(key, this.shouldRefresh, isActive);
 		this.dbSize++;
 		fn && fn();
 		this.updateDatabases();
@@ -104,22 +138,29 @@ export default class KeyTree extends Component {
 			}
 		}
 		this.shouldRefresh = false;
+		Layer.close();
 	}
 
 	componentWillUnmount() {
 		Event.remove("connect");
+		Event.remove("selectDB");
 		Event.remove("disconnect");
 		Event.remove("update");
 		Event.remove("delete");
 		Event.remove("deleteKey");
 		Event.remove("insertKey");
+		Event.remove("activeKey");
 		WebSocket.remove("scan");
-		DataTree.dataTree = [];
+		DataTree.clear();
 	}
 
-	async connect(type: string, serverName: any) {
+	async connect(serverName: any, connectType: string, fn?: any) {
+		if (this.serverName === serverName) {
+			return;
+		}
+
 		this.reset();
-		this.type = type;
+		this.connectType = connectType;
 		this.serverName = serverName;
 		let res = await this.login();
 		if (!res) return;
@@ -132,22 +173,25 @@ export default class KeyTree extends Component {
 
 		message.success("连接成功");
 
-		Config.setCurrent(Config.get(serverName));
+		Config.setCurrent(Config.getConfig(serverName));
 
 		this.updateDatabases();
+
+		fn && fn();
 	}
 
 	reset() {
-		DataTree.dataTree = [];
+		DataTree.clear();
 		this.serverName = "";
-		this.type = "";
+		this.connectType = "";
 		this.dbSize = 0;
-		this.prev = null;
+		this.selectedNode = null;
 		this.shouldRefresh = false;
 		this.setState({ databases: [], dataTree: [], db: "请选择DB" });
 		Config.delDB();
 		Config.delServerName();
 		Config.delCurrent();
+		Event.emit("resetPanel");
 	}
 
 	disconnect(serverName: any) {
@@ -204,14 +248,16 @@ export default class KeyTree extends Component {
 					) : null}
 				</div>
 				<div className="title">
-					<div>
+					{this.state.dataTree.length > 0 ? (
 						<div>
-							{this.serverName} {this.type}
+							<div>
+								{this.serverName} {this.connectType}
+							</div>
+							<Button type="link" danger onClick={() => this.refresh()}>
+								刷新
+							</Button>
 						</div>
-						<Button type="link" danger onClick={() => this.refresh()}>
-							刷新
-						</Button>
-					</div>
+					) : null}
 				</div>
 			</Rnd>
 		);
@@ -236,16 +282,16 @@ export default class KeyTree extends Component {
 	};
 
 	onToggle(node: import("react-treebeard-ts").TreeNode, toggled: boolean): void {
-		if (this.prev) {
-			this.prev.active = false;
+		if (this.selectedNode) {
+			this.selectedNode.active = false;
 		}
 
-		this.prev = node;
+		this.selectedNode = node;
 
-		node.active = true;
+		this.selectedNode.active = true;
 
-		if (node.children) {
-			node.toggled = toggled;
+		if (this.selectedNode.children) {
+			this.selectedNode.toggled = toggled;
 		} else {
 			this.onSelect(node.name);
 		}
@@ -260,8 +306,8 @@ export default class KeyTree extends Component {
 
 	async login() {
 		Layer.load();
-		let cfg = Config.get(this.serverName);
-		let response = await Command.register(this.type, cfg);
+		let cfg = Config.getConfig(this.serverName);
+		let response = await Command.register(this.connectType, cfg);
 		Layer.close();
 		if (response.data.code !== 200) {
 			Tools.Notification(response);
@@ -270,12 +316,14 @@ export default class KeyTree extends Component {
 		return response.data.msg[1];
 	}
 
-	async selectDB(db: any) {
-		if (this.state.db !== db) DataTree.dataTree = [];
+	async selectDB(db: any, fn?: any) {
+		if (this.state.db !== db) DataTree.clear();
+		Layer.load();
 		this.state.db = db;
 		let response = await Command.selectDB(this.serverName, db);
 		if (response.data.code !== 200) return Tools.Notification(response);
 		Config.setDB(db);
 		await Command.scan();
+		fn && fn();
 	}
 }

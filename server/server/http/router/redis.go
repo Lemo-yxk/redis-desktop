@@ -34,4 +34,8 @@ func RedisRouter(server *lemo.HttpServerRouter) {
 		handler.Post("/Register/cluster").Handler(redis.Register.Cluster)
 		handler.Post("/Register/normal").Handler(redis.Register.Normal)
 	})
+
+	server.Group("/Redis").Handler(func(handler *lemo.HttpServerRouteHandler) {
+		handler.Get("/Export/file").Handler(redis.Export.File)
+	})
 }

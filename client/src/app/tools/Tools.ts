@@ -37,6 +37,14 @@ class Tools {
 			return false;
 		}
 	}
+
+	IsFloat(v: any) {
+		var reg = /^[0-9]+\.?[0-9]*$/;
+		if (reg.test(v)) {
+			return true;
+		}
+		return false;
+	}
 }
 
 export default new Tools();

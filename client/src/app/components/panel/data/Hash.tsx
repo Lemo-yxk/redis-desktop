@@ -79,7 +79,7 @@ export default class Hash extends Component<Props> {
 		this.select(type, key);
 	}
 
-	async select(type: string, key: string) {
+	async select(type: string, key: string): Promise<void> {
 		this.type = type;
 		this.key = key;
 		let len = await Transform.call(type, key, "len");
@@ -89,7 +89,22 @@ export default class Hash extends Component<Props> {
 
 		this.page = this.state.page;
 		let listArray = this.allData.slice((this.page - 1) * this.size, (this.page - 1) * this.size + this.size);
+
+		if (this.selectIndex >= listArray.length - 1) {
+			if (listArray.length === 0) {
+				if (this.state.page > 1) {
+					this.selectIndex = 0;
+					this.state.page--;
+					return await this.select(type, key);
+				}
+				return;
+			} else {
+				this.selectIndex = listArray.length - 1;
+			}
+		}
+
 		if (this.selectIndex >= listArray.length - 1) this.selectIndex = listArray.length - 1;
+		this.listIndex = (this.page - 1) * this.size + this.selectIndex;
 
 		let { list } = this.state;
 		list = [];
@@ -146,13 +161,158 @@ export default class Hash extends Component<Props> {
 		if (this.len === 1) return this.deleteKey();
 		let d = await Transform.delete(this.type, this.key, item.key);
 		if (d === false) return;
+
+		this.allData.splice(this.listIndex, 1);
+
 		if (this.listIndex === this.len - 1) {
 			this.selectIndex--;
 			this.listIndex--;
 		}
-		this.allData.splice(this.selectIndex, 1);
+
 		this.select(this.type, this.key);
 		message.success("删除成功!");
+	}
+
+	async addRow() {
+		let r = await Transform.insert(this.type, this.key, this.state.addRowKey, this.state.addRowValue);
+		if (r === false) return;
+		if (r === 0) {
+			this.filter(this.state.addRowKey);
+		}
+
+		this.allData.splice(this.listIndex, 0, { value: this.state.addRowValue, key: this.state.addRowKey });
+
+		this.state.addRowValue = "";
+		this.state.addRowKey = "";
+		this.selectIndex++;
+		this.listIndex++;
+
+		this.select(this.type, this.key);
+		message.success("添加成功!");
+		this.closeAddRow();
+	}
+
+	prevPage = () => {
+		if (this.state.page <= 1 || !this.state.page) return;
+		this.state.page--;
+		this.setPage(this.state.page);
+		this.go();
+	};
+
+	nextPage = () => {
+		if (this.state.page >= Math.ceil(this.len / this.size) || !this.state.page) return;
+		this.state.page++;
+		this.setPage(this.state.page);
+		this.go();
+	};
+
+	go = () => {
+		this.select(this.type, this.key);
+	};
+
+	setPage(page: any) {
+		if (page === "") return this.setState({ page });
+		page = parseInt(page) || 1;
+		if (page < 1 || page > Math.ceil(this.len / this.size)) return;
+		this.setState({ page });
+	}
+
+	filter(key: string) {
+		for (let i = 0; i < this.allData.length; i++) {
+			const element = this.allData[i];
+			if (element.key === key) {
+				this.allData.splice(i, 1);
+				break;
+			}
+		}
+	}
+
+	async save() {
+		let item = this.state.list[this.selectIndex];
+
+		// delete
+		let d = await Transform.delete(this.type, this.key, item.key);
+		if (d === false) return;
+
+		this.allData.splice(this.listIndex, 1);
+
+		// add
+		let r = await Transform.insert(this.type, this.key, this.state.showKey, this.state.showValue);
+		if (r === false) return;
+		if (r === 0) {
+			this.filter(this.state.showKey);
+		}
+		this.allData.splice(this.listIndex, 0, { value: this.state.showValue, key: this.state.showKey });
+
+		this.select(this.type, this.key);
+
+		message.success("保存成功");
+	}
+
+	changeView(view: string): void {
+		switch (view) {
+			case "json":
+				try {
+					var v = JSON.parse(this.state.showValue);
+					this.setState({ view: view, showValue: JSON.stringify(v, null, 4) });
+				} catch (error) {
+					return;
+				}
+				break;
+			case "text":
+				try {
+					var v = JSON.parse(this.state.showValue);
+					this.setState({ view: view, showValue: JSON.stringify(v) });
+				} catch (error) {
+					return;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	async deleteKey() {
+		var r = await Transform.call(this.type, this.state.key, "remove");
+		if (!r) return;
+		Event.emit("deleteKey", this.key);
+		this.parent.remove(this.key);
+	}
+
+	async renameKey() {
+		let oldKey = this.key;
+		let newKey = this.state.key;
+		this.key = this.state.key;
+		var r = await Transform.rename(oldKey, newKey);
+		if (!r) return this.closeRename();
+		Event.emit("insertKey", newKey, true);
+		Event.emit("deleteKey", oldKey);
+		this.closeRename();
+		this.parent.update(this.type, oldKey, newKey);
+	}
+
+	closeRename(): void {
+		this.setState({ rename: false });
+	}
+
+	openRename(): void {
+		this.setState({ rename: true });
+	}
+
+	closeAddRow(): void {
+		this.setState({ addRow: false });
+	}
+
+	openAddRow(): void {
+		this.setState({ addRow: true });
+	}
+
+	onChangeShowValue(value: string): void {
+		this.setState({ showValue: value });
+	}
+
+	onChangeShowKey(value: string): void {
+		this.setState({ showKey: value });
 	}
 
 	render() {
@@ -329,149 +489,5 @@ export default class Hash extends Component<Props> {
 				</div>
 			</div>
 		);
-	}
-
-	async addRow() {
-		let r = await Transform.insert(this.type, this.key, this.state.addRowKey, this.state.addRowValue);
-		if (r === false) return;
-		if (r === 0) {
-			this.filter(this.state.addRowKey);
-		}
-		this.allData.splice(this.selectIndex, 0, { value: this.state.addRowValue, key: this.state.addRowKey });
-		this.select(this.type, this.key);
-		message.success("添加成功!");
-		this.closeAddRow();
-		this.state.addRowValue = "";
-		this.state.addRowKey = "";
-		this.selectIndex++;
-		this.listIndex++;
-	}
-
-	prevPage = () => {
-		if (this.state.page <= 1 || !this.state.page) return;
-		this.state.page--;
-		this.setPage(this.state.page);
-		this.go();
-	};
-
-	nextPage = () => {
-		if (this.state.page >= Math.ceil(this.len / this.size) || !this.state.page) return;
-		this.state.page++;
-		this.setPage(this.state.page);
-		this.go();
-	};
-
-	go = () => {
-		this.select(this.type, this.key);
-	};
-
-	setPage(page: any) {
-		if (page === "") return this.setState({ page });
-		page = parseInt(page) || 1;
-		if (page < 1 || page > Math.ceil(this.len / this.size)) return;
-		this.setState({ page });
-	}
-
-	filter(key: string) {
-		for (let i = 0; i < this.allData.length; i++) {
-			const element = this.allData[i];
-			if (element.key === key) {
-				this.allData.splice(i, 1);
-				break;
-			}
-		}
-	}
-
-	async save() {
-		let item = this.state.list[this.selectIndex];
-
-		// delete
-		let d = await Transform.delete(this.type, this.key, item.key);
-		if (d === false) return;
-
-		this.allData.splice(this.selectIndex, 1);
-
-		// add
-		let r = await Transform.insert(this.type, this.key, this.state.showKey, this.state.showValue);
-		if (r === false) return;
-		if (r === 0) {
-			this.filter(this.state.showKey);
-		}
-		this.allData.splice(this.selectIndex, 0, { value: this.state.showValue, key: this.state.showKey });
-
-		this.select(this.type, this.key);
-		// let { list } = this.state;
-		// list[this.selectIndex].value = this.state.showValue;
-		// list[this.selectIndex].key = this.state.showKey;
-		// this.setState({ list }, () => {
-		// 	this.vlist.current?.forceUpdateGrid();
-		// });
-		message.success("保存成功");
-	}
-
-	changeView(view: string): void {
-		switch (view) {
-			case "json":
-				try {
-					var v = JSON.parse(this.state.showValue);
-					this.setState({ view: view, showValue: JSON.stringify(v, null, 4) });
-				} catch (error) {
-					return;
-				}
-				break;
-			case "text":
-				try {
-					var v = JSON.parse(this.state.showValue);
-					this.setState({ view: view, showValue: JSON.stringify(v) });
-				} catch (error) {
-					return;
-				}
-				break;
-			default:
-				break;
-		}
-	}
-
-	async deleteKey() {
-		var r = await Transform.call(this.type, this.state.key, "remove");
-		if (!r) return;
-		Event.emit("deleteKey", this.key);
-		this.parent.remove(this.key);
-	}
-
-	async renameKey() {
-		let oldKey = this.key;
-		let newKey = this.state.key;
-		this.key = this.state.key;
-		var r = await Transform.rename(oldKey, newKey);
-		if (!r) return this.closeRename();
-		Event.emit("insertKey", newKey);
-		Event.emit("deleteKey", oldKey);
-		this.closeRename();
-		this.parent.update(this.type, oldKey, newKey);
-	}
-
-	closeRename(): void {
-		this.setState({ rename: false });
-	}
-
-	openRename(): void {
-		this.setState({ rename: true });
-	}
-
-	closeAddRow(): void {
-		this.setState({ addRow: false });
-	}
-
-	openAddRow(): void {
-		this.setState({ addRow: true });
-	}
-
-	onChangeShowValue(value: string): void {
-		this.setState({ showValue: value });
-	}
-
-	onChangeShowKey(value: string): void {
-		this.setState({ showKey: value });
 	}
 }

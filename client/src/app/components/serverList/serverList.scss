@@ -10,21 +10,29 @@
 			}
 		}
 	}
-}
-.choose-server {
-	width: 100%;
-	display: flex;
-	justify-content: space-around;
-	align-items: center;
-
-	.ant-modal-content {
-		width: 60%;
+	.ant-drawer-body {
+		padding: 12px;
 	}
 
-	.ant-modal-body {
-		width: 100%;
+	.panel-title {
 		display: flex;
-		justify-content: space-around;
+		justify-content: space-between;
 		align-items: center;
+		width: 100%;
+	}
+
+	.server-list-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+		> .left {
+			// width: 50%;
+		}
+		> .right {
+			button {
+				margin: 0 10px;
+			}
+		}
 	}
 }

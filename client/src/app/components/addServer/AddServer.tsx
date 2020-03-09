@@ -8,7 +8,7 @@ import { MinusCircleOutlined } from "@ant-design/icons";
 import Tools from "../../tools/Tools";
 
 export default class AddServer extends Component {
-	state = { visible: false, type: "normal", clusterHostInput: null };
+	state = { visible: false, connectType: "normal", clusterHostInput: null };
 	event!: string;
 
 	onClose() {
@@ -43,11 +43,14 @@ export default class AddServer extends Component {
 				onClose={() => this.onClose()}
 				visible={this.state.visible}
 				getContainer={false}
-				width={"30%"}
+				width={"400px"}
 				destroyOnClose
 				className="add-server"
 			>
-				<Radio.Group value={this.state.type} onChange={value => this.setState({ type: value.target.value })}>
+				<Radio.Group
+					value={this.state.connectType}
+					onChange={value => this.setState({ connectType: value.target.value })}
+				>
 					<Radio.Button value="normal">Default</Radio.Button>
 					<Radio.Button value="cluster">Cluster</Radio.Button>
 				</Radio.Group>
@@ -58,7 +61,7 @@ export default class AddServer extends Component {
 						placeholder="127.0.0.1"
 						onChange={value => (this.name = value.target.value)}
 					/>
-					{this.state.type === "normal" ? (
+					{this.state.connectType === "normal" ? (
 						<Input
 							spellCheck={false}
 							addonBefore="Host"
@@ -75,7 +78,7 @@ export default class AddServer extends Component {
 							<div className="input">{this.state.clusterHostInput}</div>
 						</div>
 					)}
-					{this.state.type === "normal" ? (
+					{this.state.connectType === "normal" ? (
 						<Input
 							spellCheck={false}
 							addonBefore="Port"
@@ -142,10 +145,12 @@ export default class AddServer extends Component {
 			port: this.port,
 			password: this.password,
 			master: this.master,
-			cluster: this.cluster.filter(v => v !== "")
+			cluster: this.cluster.filter(v => v !== ""),
+			connectType: this.state.connectType,
+			default: false
 		};
 
-		let response = await Command.register(this.state.type, data);
+		let response = await Command.register(this.state.connectType, data);
 
 		return Tools.Notification(response, "连接成功");
 	}
@@ -157,15 +162,17 @@ export default class AddServer extends Component {
 			port: this.port,
 			password: this.password,
 			master: this.master,
-			cluster: this.cluster.filter(v => v !== "")
+			connectType: this.state.connectType,
+			cluster: this.cluster.filter(v => v !== ""),
+			default: false
 		};
 
 		if (this.name === "") return notification.error({ message: `服务器名不能为空!` });
 
-		let cfg = Config.get(this.name);
+		let cfg = Config.getConfig(this.name);
 		if (cfg) return notification.error({ message: "ERROR", description: `${this.name} 已经存在!` });
 
-		Config.set(this.name, data);
+		Config.setConfig(this.name, data);
 
 		this.onClose();
 

@@ -11,7 +11,7 @@ import Tools from "../../tools/Tools";
 import Layer from "../layer/Layer";
 
 export default class UpdateServer extends Component {
-	state = { visible: false, config: {} as config, type: "normal", clusterHostInput: null };
+	state = { visible: false, config: {} as config, connectType: "normal", clusterHostInput: null };
 
 	onOpen() {
 		this.setState({ visible: true });
@@ -26,7 +26,7 @@ export default class UpdateServer extends Component {
 	componentDidMount() {
 		Event.add("openUpdateServer", serverName => {
 			this.serverName = serverName;
-			let config = Config.get(serverName);
+			let config = Config.getConfig(serverName);
 			if (!config.cluster) config.cluster = [];
 			this.setState({ config: config }, () => this.setState({ clusterHostInput: this.createCluster() }));
 			this.onOpen();
@@ -37,8 +37,8 @@ export default class UpdateServer extends Component {
 		Event.remove("openUpdateServer");
 	}
 
-	onChange(type: string, value: string) {
-		(this.state.config as any)[type] = value;
+	onChange(field: string, value: string) {
+		(this.state.config as any)[field] = value;
 		this.setState({ config: this.state.config, clusterHostInput: this.createCluster() });
 	}
 
@@ -53,7 +53,10 @@ export default class UpdateServer extends Component {
 				maskClosable={false}
 				footer={null}
 			>
-				<Radio.Group value={this.state.type} onChange={value => this.setState({ type: value.target.value })}>
+				<Radio.Group
+					value={this.state.connectType}
+					onChange={value => this.setState({ connectType: value.target.value })}
+				>
 					<Radio.Button value="normal">Default</Radio.Button>
 					<Radio.Button value="cluster">Cluster</Radio.Button>
 				</Radio.Group>
@@ -65,7 +68,7 @@ export default class UpdateServer extends Component {
 						value={this.state.config.name}
 						onChange={value => this.onChange("name", value.target.value)}
 					/>
-					{this.state.type === "normal" ? (
+					{this.state.connectType === "normal" ? (
 						<Input
 							spellCheck={false}
 							addonBefore="Host"
@@ -83,7 +86,7 @@ export default class UpdateServer extends Component {
 							<div className="input">{this.state.clusterHostInput}</div>
 						</div>
 					)}
-					{this.state.type === "normal" ? (
+					{this.state.connectType === "normal" ? (
 						<Input
 							spellCheck={false}
 							addonBefore="Port"
@@ -156,16 +159,17 @@ export default class UpdateServer extends Component {
 	async test() {
 		this.state.config.cluster = this.state.config.cluster.filter(v => v !== "");
 		Layer.load();
-		let response = await Command.register(this.state.type, this.state.config);
+		let response = await Command.register(this.state.connectType, this.state.config);
 		Layer.close();
 		return Tools.Notification(response, "连接成功");
 	}
 
 	submit() {
-		Config.delete(this.serverName);
+		Config.deleteConfig(this.serverName);
 		let cfg = this.state.config;
+		this.state.config.connectType = this.state.connectType;
 		cfg.cluster = cfg.cluster.filter(v => v !== "");
-		Config.set(this.state.config.name, this.state.config);
+		Config.setConfig(this.state.config.name, this.state.config);
 		message.success("修改成功");
 		this.onClose();
 		Event.emit("updateServer");

@@ -5,6 +5,7 @@ import "./addKey.scss";
 import Transform from "../../transform/Transform";
 import Config from "../config/Config";
 import { config } from "../../interface/config";
+import Tools from "../../tools/Tools";
 
 export default class AddKey extends Component {
 	state = { visible: false, keyType: "string", key: "", k: "", v: "" };
@@ -74,7 +75,14 @@ export default class AddKey extends Component {
 						spellCheck={false}
 						placeholder="k"
 						value={this.state.k}
-						onChange={value => this.setState({ k: value.target.value })}
+						onChange={value => {
+							var k = value.target.value;
+							if (this.state.keyType === "zset") {
+								Tools.IsFloat(k) && this.setState({ k: k });
+							} else {
+								this.setState({ k: k });
+							}
+						}}
 					/>
 					<Input
 						spellCheck={false}
@@ -140,9 +148,9 @@ export default class AddKey extends Component {
 		);
 	}
 	async add() {
-		if (this.state.key === "") message.error("请填写完整!");
+		if (this.state.key === "") return message.error("请填写完整!");
 
-		if (this.state.v === "") message.error("请填写完整!");
+		if (this.state.v === "") return message.error("请填写完整!");
 
 		switch (this.state.keyType) {
 			case "string":

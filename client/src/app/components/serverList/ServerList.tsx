@@ -1,12 +1,16 @@
 import React, { Component } from "react";
-import { Drawer, Button, Modal } from "antd";
+import { Drawer, Button, Modal, Popconfirm } from "antd";
 import Event from "../../event/Event";
 import "./serverList.scss";
 import Config from "../config/Config";
 import Command from "../../services/Command";
+import { QuestionCircleOutlined, DownloadOutlined } from "@ant-design/icons";
+import { Collapse } from "antd";
+import { config } from "../../interface/config";
+const { Panel } = Collapse;
 
 export default class ServerList extends Component {
-	state = { visible: false, modal: false, header: this.createHeader() };
+	state = { visible: false, configs: Config.allConfig() as { [key: string]: config } };
 
 	onClose() {
 		this.setState({ visible: false });
@@ -18,117 +22,151 @@ export default class ServerList extends Component {
 
 	componentDidMount() {
 		Event.add("openServerList", () => this.onOpen());
-		Event.add("addServer", () => this.setState({ header: this.createHeader() }));
-		Event.add("updateServer", () => this.setState({ header: this.createHeader() }));
+		Event.add("addServer", () => this.setState({ configs: Config.allConfig() }));
+		Event.add("updateServer", () => this.setState({ configs: Config.allConfig() }));
 	}
 
 	componentWillUnmount() {
 		Event.remove("openServerList");
 	}
 
-	createHeader() {
-		let data = [];
-		let config = Config.all();
-		for (const serverName in config) {
-			data.push(
-				<div className="db-header" key={serverName}>
-					<div>{serverName}</div>
-					<div className="button">
-						<Button type="link" onClick={() => this.connect(serverName)}>
-							连接
-						</Button>
-						<Button type="link" onClick={() => this.update(serverName)}>
-							修改
-						</Button>
-						<Button type="link" danger onClick={() => this.disconnect(serverName)}>
-							断开
-						</Button>
-						<Button type="link" danger onClick={() => this.delete(serverName)}>
-							删除
-						</Button>
-					</div>
-				</div>
-			);
-		}
-		return data;
+	update(config: config) {
+		Event.emit("update", config.name);
 	}
 
-	update(serverName: string) {
-		Event.emit("update", serverName);
-	}
-
-	serverName = "";
-	connect(serverName: string) {
-		this.serverName = serverName;
-		this.onChooseOpen();
-	}
-
-	disconnect(serverName: string) {
+	connect(config: config) {
+		Event.emit("connect", config.name, config.connectType);
 		this.onClose();
-		Event.emit("disconnect", serverName);
-		Command.disconnect(serverName);
 	}
 
-	delete(serverName: string) {
-		Modal.confirm({
-			title: `确定要删除 ${serverName} 的配置吗`,
-			okText: "确认",
-			cancelText: "取消",
-			onOk: () => {
-				Config.delete(serverName);
-				this.setState({ header: this.createHeader() });
-				Event.emit("delete", serverName);
-				Command.disconnect(serverName);
-			}
-		});
+	disconnect(config: config) {
+		this.onClose();
+		Event.emit("disconnect", config.name);
+		Command.disconnect(config.name);
 	}
 
-	onChooseClose() {
-		this.setState({ modal: false });
+	delete(config: config) {
+		Config.deleteConfig(config.name);
+		this.setState({ configs: Config.allConfig() });
+		Event.emit("delete", config.name);
+		Command.disconnect(config.name);
 	}
 
-	onChooseOpen() {
-		this.setState({ modal: true });
+	setDefault(config: config) {
+		for (const key in this.state.configs) {
+			if (key === config.name) continue;
+			this.state.configs[key].default = false;
+			Config.setConfig(key, this.state.configs[key]);
+		}
+		config.default = !config.default;
+		Config.setConfig(config.name, config);
+		this.setState({ configs: Config.allConfig() });
 	}
 
 	render() {
+		let configs = Object.values(this.state.configs);
+
 		return (
 			<Drawer
-				title="服务器列表"
+				title={
+					<div className="server-list-header">
+						<div className="left">服务器列表</div>
+						<div className="right">
+							<Button
+								type="default"
+								onClick={() =>
+									Modal.confirm({
+										content: "确定导出所有配置?",
+										okText: "别啰嗦,快点!",
+										cancelText: "我再想想.",
+										onOk: () => {
+											Command.export("config.json", JSON.stringify(Config.allConfig()));
+										}
+									})
+								}
+							>
+								<DownloadOutlined />
+							</Button>
+							<Button
+								type="danger"
+								onClick={() =>
+									Modal.confirm({
+										content: "确定清除所有配置?",
+										okText: "别啰嗦,快点!",
+										cancelText: "我再想想.",
+										onOk: () => {
+											Config.deleteAllConfig();
+											this.setState({ configs: {} });
+										}
+									})
+								}
+							>
+								清除所有配置
+							</Button>
+						</div>
+					</div>
+				}
 				placement="right"
 				closable={false}
 				onClose={() => this.onClose()}
 				visible={this.state.visible}
 				getContainer={false}
-				width={"30%"}
+				width={"400px"}
 				className="server-list"
 				destroyOnClose
 			>
-				{this.state.header}
-				<Modal
-					destroyOnClose
-					title={`选择连接方式`}
-					visible={this.state.modal}
-					className="choose-server"
-					onCancel={() => this.onChooseClose()}
-					closable={true}
-					maskClosable={true}
-					footer={null}
-				>
-					<Button type="dashed" onClick={() => this.choose("normal")}>
-						Normal
-					</Button>
-					<Button type="dashed" onClick={() => this.choose("cluster")}>
-						Cluster
-					</Button>
-				</Modal>
+				{configs.length > 0 ? (
+					<Collapse>
+						{configs.map(config => (
+							<Panel
+								header={
+									<div className="panel-title">
+										{config.default ? (
+											<div>{`${config.name} (默认)`}</div>
+										) : (
+											<div>{config.name}</div>
+										)}
+
+										<div>
+											<Button type="link" onClick={() => this.connect(config)}>
+												连接
+											</Button>
+											<Button type="link" danger onClick={() => this.disconnect(config)}>
+												断开
+											</Button>
+										</div>
+									</div>
+								}
+								key={config.name}
+							>
+								<div className="db-header" key={config.name}>
+									<div>{config.name}</div>
+									<div className="button">
+										<Button type="link" onClick={() => this.setDefault(config)}>
+											{config.default ? "取消默认" : "设为默认"}
+										</Button>
+										<Button type="link" onClick={() => this.update(config)}>
+											修改
+										</Button>
+
+										<Popconfirm
+											title={`确定要删除 ${config.name} 吗?`}
+											onConfirm={() => this.delete(config)}
+											okText="确定"
+											cancelText="取消"
+											icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+										>
+											<Button type="link" danger>
+												删除
+											</Button>
+										</Popconfirm>
+									</div>
+								</div>
+							</Panel>
+						))}
+					</Collapse>
+				) : null}
 			</Drawer>
 		);
-	}
-
-	choose(type: string): void {
-		Event.emit("connect", type, this.serverName);
-		this.onChooseClose();
-		this.onClose();
 	}
 }

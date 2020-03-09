@@ -5,12 +5,62 @@ import String from "./data/String";
 import List from "./data/List";
 import { Tabs } from "antd";
 import Hash from "./data/Hash";
+import Set from "./data/Set";
+import ZSet from "./data/ZSet";
 const { TabPane } = Tabs;
 export default class Panel extends Component {
 	state = { activeKey: "", panes: [] as any[] };
 	serverName = "";
-	constructor(props: any) {
-		super(props);
+
+	createComponent(type: string, key: string) {
+		let component = null;
+
+		switch (type) {
+			case "string":
+				component = this.createString(type, key);
+				break;
+			case "list":
+				component = this.createList(type, key);
+				break;
+			case "hash":
+				component = this.createHash(type, key);
+				break;
+			case "zset":
+				component = this.createZSet(type, key);
+				break;
+			case "set":
+				component = this.createSet(type, key);
+				break;
+		}
+		return component;
+	}
+
+	createString(type: string, key: string) {
+		return <String parent={this} type={type} keys={key}></String>;
+	}
+
+	createList(type: string, key: string) {
+		return <List parent={this} type={type} keys={key}></List>;
+	}
+
+	createHash(type: string, key: string) {
+		return <Hash parent={this} type={type} keys={key}></Hash>;
+	}
+
+	createSet(type: string, key: string) {
+		return <Set parent={this} type={type} keys={key}></Set>;
+	}
+
+	createZSet(type: string, key: string) {
+		return <ZSet parent={this} type={type} keys={key}></ZSet>;
+	}
+
+	reset() {
+		this.serverName = "";
+		this.setState({ activeKey: "", panes: [] as any[] });
+	}
+
+	componentDidMount() {
 		Event.add("selectKey", (serverName: string, type: string, key: string) => {
 			this.serverName = serverName;
 
@@ -29,48 +79,18 @@ export default class Panel extends Component {
 
 			this.setState({ panes: panes, activeKey: key });
 		});
+		Event.add("resetPanel", () => {
+			this.reset();
+		});
 	}
-
-	createComponent(type: string, key: string) {
-		let component = null;
-
-		switch (type) {
-			case "string":
-				component = this.createString(type, key);
-				break;
-			case "list":
-				component = this.createList(type, key);
-				break;
-			case "hash":
-				component = this.createHash(type, key);
-				break;
-			case "zset":
-				break;
-			case "set":
-				break;
-		}
-		return component;
-	}
-
-	createString(type: string, key: string) {
-		return <String parent={this} type={type} keys={key}></String>;
-	}
-
-	createList(type: string, key: string) {
-		return <List parent={this} type={type} keys={key}></List>;
-	}
-
-	createHash(type: string, key: string) {
-		return <Hash parent={this} type={type} keys={key}></Hash>;
-	}
-
-	componentDidMount() {}
 
 	componentWillUnmount() {
 		Event.remove("selectKey");
+		Event.remove("resetPanel");
 	}
 
 	onChange = (activeKey: any) => {
+		Event.emit("activeKey", activeKey, true);
 		this.setState({ activeKey });
 	};
 
@@ -113,6 +133,11 @@ export default class Panel extends Component {
 			}
 		}
 		this.setState({ panes, activeKey });
+		if (panes.length === 0) {
+			Event.emit("activeKey", activeKey, false);
+		} else {
+			this.onChange(activeKey);
+		}
 	};
 
 	render() {

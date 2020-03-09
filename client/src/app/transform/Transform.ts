@@ -127,10 +127,55 @@ class Hash {
 	}
 }
 class Set {
-	select() {}
+	len(key: string) {
+		return ["SCARD", key];
+	}
+
+	insert(key: string, value: string) {
+		return ["SADD", key, value];
+	}
+
+	select(key: string, curser: number) {
+		return ["SSCAN", key, curser, "COUNT", 10000];
+	}
+
+	update(key: string, value: string) {
+		return ["SADD", key, value];
+	}
+
+	delete(key: string, value: string) {
+		return ["SREM", key, value];
+	}
+
+	remove(key: string) {
+		return ["DEL", key];
+	}
 }
 class ZSet {
-	select() {}
+	len(key: string) {
+		return ["ZCARD", key];
+	}
+
+	insert(key: string, score: number, value: string) {
+		return ["ZADD", key, score, value];
+	}
+
+	select(key: string, page: number, size: number) {
+		let skip = (page - 1) * size;
+		return ["ZRANGE", key, skip, size * page - 1, "WITHSCORES"];
+	}
+
+	update(key: string, score: number, value: string) {
+		return ["ZADD", key, score, value];
+	}
+
+	delete(key: string, value: string) {
+		return ["ZREM", key, value];
+	}
+
+	remove(key: string) {
+		return ["DEL", key];
+	}
 }
 class Empty {
 	select() {}
