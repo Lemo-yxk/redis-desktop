@@ -12,7 +12,6 @@ package app
 
 import (
 	"sync"
-	"time"
 
 	"github.com/go-redis/redis/v7"
 )
@@ -26,7 +25,7 @@ func newRedis() *redisClient {
 	return &redisClient{data: make(map[string]*redis.Client)}
 }
 
-func (r *redisClient) NewCluster(name string, masterName string, password string, sentinelAddrs []string) (*redis.Client, error) {
+func (r *redisClient) NewCluster(name string, option *redis.FailoverOptions) (*redis.Client, error) {
 
 	r.mux.Lock()
 	defer r.mux.Unlock()
@@ -36,12 +35,7 @@ func (r *redisClient) NewCluster(name string, masterName string, password string
 		delete(r.data, name)
 	}
 
-	var client = redis.NewFailoverClient(&redis.FailoverOptions{
-		MasterName:    masterName,
-		Password:      password,
-		SentinelAddrs: sentinelAddrs,
-		DialTimeout:   3 * time.Second,
-	})
+	var client = redis.NewFailoverClient(option)
 	err := client.Ping().Err()
 	if err != nil {
 		return nil, err
@@ -52,7 +46,7 @@ func (r *redisClient) NewCluster(name string, masterName string, password string
 	return client, nil
 }
 
-func (r *redisClient) New(name string, addr string, password string) (*redis.Client, error) {
+func (r *redisClient) New(name string, option *redis.Options) (*redis.Client, error) {
 
 	r.mux.Lock()
 	defer r.mux.Unlock()
@@ -62,11 +56,7 @@ func (r *redisClient) New(name string, addr string, password string) (*redis.Cli
 		delete(r.data, name)
 	}
 
-	var client = redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DialTimeout:   3 * time.Second,
-	})
+	var client = redis.NewClient(option)
 	err := client.Ping().Err()
 	if err != nil {
 		return nil, err

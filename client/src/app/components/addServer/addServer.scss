@@ -1,6 +1,7 @@
 .add-server {
 	.normal-form {
 		margin: 5px 0px;
+		min-height: 200px;
 
 		> .ant-input-group-wrapper {
 			margin: 5px 0;
@@ -8,16 +9,6 @@
 			.ant-input-group-addon {
 				width: 80px;
 			}
-		}
-
-		> .button-box {
-			display: flex;
-			justify-content: flex-start;
-			align-items: center;
-			button {
-				margin-right: 10px;
-			}
-			margin-top: 10px;
 		}
 
 		> .add-input-box {
@@ -39,5 +30,15 @@
 				}
 			}
 		}
+	}
+
+	.button-box {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		button {
+			margin-right: 10px;
+		}
+		margin-top: 10px;
 	}
 }

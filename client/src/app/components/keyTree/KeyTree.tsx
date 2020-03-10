@@ -10,6 +10,7 @@ import { Treebeard } from "react-treebeard-ts";
 import Command from "../../services/Command";
 import Layer from "../layer/Layer";
 import DataTree from "./Tree";
+import { config } from "../../interface/config";
 
 const Option = Select.Option;
 
@@ -25,10 +26,7 @@ export default class KeyTree extends Component {
 	dbSize = 0;
 	selectedNode: any = null;
 	shouldRefresh = false;
-
-	// constructor(props: any) {
-	// 	super(props);
-	// }
+	config: config = {} as config;
 
 	updateTree() {
 		this.setState({ dataTree: DataTree.dataTree });
@@ -66,7 +64,7 @@ export default class KeyTree extends Component {
 			this.dbSize = v.dbSize;
 
 			// read done
-			if (v.dbSize === v.current) {
+			if (v.done) {
 				Event.emit("progress", 0);
 				this.readDone();
 			}
@@ -76,22 +74,6 @@ export default class KeyTree extends Component {
 			// render databases
 			this.updateDatabases();
 		});
-
-		this.connectDefault();
-	}
-
-	connectDefault() {
-		var configs = Config.allConfig();
-
-		for (const key in configs) {
-			let config = configs[key];
-			if (config.default) {
-				Event.emit("connect", config.name, config.connectType, () => {
-					Event.emit("selectDB", 0);
-				});
-				break;
-			}
-		}
 	}
 
 	activeKey(key: string, isActive: boolean) {
@@ -160,10 +142,13 @@ export default class KeyTree extends Component {
 		}
 
 		this.reset();
+
+		this.config = Config.getConfig(serverName);
 		this.connectType = connectType;
 		this.serverName = serverName;
+		DataTree.setSplit(this.config.defaultSplit);
 		let res = await this.login();
-		if (!res) return;
+		if (!res) return this.reset();
 
 		Config.setServerName(serverName);
 
@@ -173,15 +158,18 @@ export default class KeyTree extends Component {
 
 		message.success("连接成功");
 
-		Config.setCurrent(Config.getConfig(serverName));
+		Config.setCurrent(this.config);
 
 		this.updateDatabases();
 
 		fn && fn();
+
+		if (this.config.defaultDB) this.selectDB(parseInt(this.config.defaultDB));
 	}
 
 	reset() {
 		DataTree.clear();
+		this.config = {} as config;
 		this.serverName = "";
 		this.connectType = "";
 		this.dbSize = 0;
@@ -200,9 +188,7 @@ export default class KeyTree extends Component {
 		}
 	}
 
-	update(serverName: any) {
-		Event.emit("openUpdateServer", serverName);
-	}
+	update(serverName: any) {}
 
 	delete(serverName: any) {
 		if (this.serverName === serverName) {
@@ -306,8 +292,7 @@ export default class KeyTree extends Component {
 
 	async login() {
 		Layer.load();
-		let cfg = Config.getConfig(this.serverName);
-		let response = await Command.register(this.connectType, cfg);
+		let response = await Command.register(this.connectType, this.config);
 		Layer.close();
 		if (response.data.code !== 200) {
 			Tools.Notification(response);
@@ -323,7 +308,7 @@ export default class KeyTree extends Component {
 		let response = await Command.selectDB(this.serverName, db);
 		if (response.data.code !== 200) return Tools.Notification(response);
 		Config.setDB(db);
-		await Command.scan();
+		await Command.scan(this.config.defaultFilter);
 		fn && fn();
 	}
 }

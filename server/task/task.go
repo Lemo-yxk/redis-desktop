@@ -27,7 +27,10 @@ func Start() {
 }
 
 func CreateData() {
-	client, err := app.Redis().New("127.0.0.1", "127.0.0.1:6379", "1354243")
+	client, err := app.Redis().New("127.0.0.1", &redis2.Options{
+		Addr:     "127.0.0.1:6379",
+		Password: "1354243",
+	})
 	if err != nil {
 		console.Error(err)
 	}

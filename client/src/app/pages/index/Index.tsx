@@ -5,9 +5,9 @@ import AddServer from "../../components/addServer/AddServer";
 import KeyTree from "../../components/keyTree/KeyTree";
 import Panel from "../../components/panel/Panel";
 import ServerList from "../../components/serverList/ServerList";
-import UpdateServer from "../../components/updateServer/UpdateServer";
 import MProgress from "../../components/progress/Progress";
 import AddKey from "../../components/addKey/AddKey";
+import Connection from "../../components/connection/Connection";
 
 class Index extends Component {
 	render() {
@@ -16,7 +16,6 @@ class Index extends Component {
 				<AddKey></AddKey>
 				<AddServer></AddServer>
 				<ServerList></ServerList>
-				<UpdateServer></UpdateServer>
 				<div className="header">
 					<Header></Header>
 				</div>
@@ -25,6 +24,7 @@ class Index extends Component {
 					<Panel></Panel>
 				</div>
 				<MProgress></MProgress>
+				<Connection></Connection>
 			</div>
 		);
 	}

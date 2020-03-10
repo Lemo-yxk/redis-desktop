@@ -22,9 +22,6 @@ export default class Header extends Component {
 					</Button>
 				</div>
 				<div className="right">
-					<Button type="primary" onClick={() => Event.emit("openAddServer")}>
-						添加服务器
-					</Button>
 					<Button type="dashed" danger ghost onClick={() => Event.emit("openServerList")}>
 						<AlignLeftOutlined />
 					</Button>

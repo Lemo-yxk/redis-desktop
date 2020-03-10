@@ -1,10 +1,15 @@
 class Tree {
 	dataTree: any[] = [];
 	counter = 0;
+	split = "";
 
 	clear() {
 		this.dataTree = [];
 		this.counter = 0;
+	}
+
+	setSplit(split: string) {
+		this.split = split;
 	}
 
 	checkRead(data: any[]) {
@@ -74,7 +79,7 @@ class Tree {
 	}
 
 	addKey(key: string, isRead?: boolean, isActive?: boolean, isToggled?: boolean) {
-		let params = key.split(":");
+		let params = this.split ? key.split(this.split) : [key];
 		let temp = this.dataTree;
 		var parent = null;
 		for (let index = 0; index < params.length; index++) {
@@ -111,7 +116,7 @@ class Tree {
 				name: index === params.length - 1 ? key : params[index],
 				isKey: index === params.length - 1,
 				i: params[index],
-				prefix: params.slice(0, index + 1).join(":"),
+				prefix: params.slice(0, index + 1).join(this.split),
 				children: index === params.length - 1 ? null : [],
 				read: isRead,
 				count: 0,

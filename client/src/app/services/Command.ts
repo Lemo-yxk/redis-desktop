@@ -47,8 +47,11 @@ class Command {
 		return await Axios.post(`/redis/db/select`, Qs.stringify({ name: serverName, db, ...this.uuid() }));
 	}
 
-	async scan() {
-		let response = await Axios.post(`/redis/db/scan`, Qs.stringify({ ...this.serverNameAndDB(), ...this.uuid() }));
+	async scan(fliter: string) {
+		let response = await Axios.post(
+			`/redis/db/scan`,
+			Qs.stringify({ filter: fliter, ...this.serverNameAndDB(), ...this.uuid() })
+		);
 		return response.data.msg;
 	}
 

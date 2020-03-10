@@ -38,7 +38,7 @@ class Tools {
 		}
 	}
 
-	IsFloat(v: any) {
+	IsNumber(v: any) {
 		var reg = /^[0-9]+\.?[0-9]*$/;
 		if (reg.test(v)) {
 			return true;

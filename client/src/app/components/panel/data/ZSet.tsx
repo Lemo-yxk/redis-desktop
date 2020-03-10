@@ -274,7 +274,7 @@ export default class ZSet extends Component<Props> {
 	}
 
 	onChangeShowKey(value: string): void {
-		Tools.IsFloat(value) && this.setState({ showKey: value });
+		Tools.IsNumber(value) && this.setState({ showKey: value });
 	}
 
 	render() {
@@ -313,7 +313,7 @@ export default class ZSet extends Component<Props> {
 							value={this.state.addRowKey}
 							addonBefore={"KEY"}
 							onChange={value =>
-								Tools.IsFloat(value.target.value) && this.setState({ addRowKey: value.target.value })
+								Tools.IsNumber(value.target.value) && this.setState({ addRowKey: value.target.value })
 							}
 						></Input>
 						<Input

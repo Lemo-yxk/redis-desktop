@@ -4,7 +4,7 @@ import Event from "../../event/Event";
 import "./serverList.scss";
 import Config from "../config/Config";
 import Command from "../../services/Command";
-import { QuestionCircleOutlined, DownloadOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined, DownloadOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Collapse } from "antd";
 import { config } from "../../interface/config";
 const { Panel } = Collapse;
@@ -28,10 +28,14 @@ export default class ServerList extends Component {
 
 	componentWillUnmount() {
 		Event.remove("openServerList");
+		Event.remove("addServer");
+		Event.remove("updateServer");
 	}
 
 	update(config: config) {
-		Event.emit("update", config.name);
+		// Event.emit("update", config.name);
+		Event.emit("openAddServer", config);
+		this.onClose();
 	}
 
 	connect(config: config) {
@@ -40,7 +44,7 @@ export default class ServerList extends Component {
 	}
 
 	disconnect(config: config) {
-		this.onClose();
+		// this.onClose();
 		Event.emit("disconnect", config.name);
 		Command.disconnect(config.name);
 	}
@@ -63,6 +67,11 @@ export default class ServerList extends Component {
 		this.setState({ configs: Config.allConfig() });
 	}
 
+	addServer() {
+		Event.emit("openAddServer");
+		this.onClose();
+	}
+
 	render() {
 		let configs = Object.values(this.state.configs);
 
@@ -72,6 +81,9 @@ export default class ServerList extends Component {
 					<div className="server-list-header">
 						<div className="left">服务器列表</div>
 						<div className="right">
+							<Button type="primary" onClick={() => this.addServer()}>
+								<PlusOutlined />
+							</Button>
 							<Button
 								type="default"
 								onClick={() =>
@@ -101,7 +113,7 @@ export default class ServerList extends Component {
 									})
 								}
 							>
-								清除所有配置
+								<DeleteOutlined />
 							</Button>
 						</div>
 					</div>
@@ -128,10 +140,23 @@ export default class ServerList extends Component {
 										)}
 
 										<div>
-											<Button type="link" onClick={() => this.connect(config)}>
+											<Button
+												type="link"
+												onClick={e => {
+													e.stopPropagation();
+													this.connect(config);
+												}}
+											>
 												连接
 											</Button>
-											<Button type="link" danger onClick={() => this.disconnect(config)}>
+											<Button
+												type="link"
+												danger
+												onClick={e => {
+													e.stopPropagation();
+													this.disconnect(config);
+												}}
+											>
 												断开
 											</Button>
 										</div>

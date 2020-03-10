@@ -78,7 +78,7 @@ export default class AddKey extends Component {
 						onChange={value => {
 							var k = value.target.value;
 							if (this.state.keyType === "zset") {
-								Tools.IsFloat(k) && this.setState({ k: k });
+								Tools.IsNumber(k) && this.setState({ k: k });
 							} else {
 								this.setState({ k: k });
 							}

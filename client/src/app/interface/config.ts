@@ -7,4 +7,9 @@ export interface config {
 	cluster: string[];
 	connectType: string;
 	default: boolean;
+	defaultSplit: string;
+	defaultFilter: string;
+	connectTimeout: string;
+	execTimeout: string;
+	defaultDB: string;
 }
