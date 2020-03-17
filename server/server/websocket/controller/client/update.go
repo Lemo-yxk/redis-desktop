@@ -12,7 +12,6 @@ package redis
 
 import (
 	"github.com/Lemo-yxk/lemo"
-	"github.com/Lemo-yxk/lemo/console"
 	"github.com/Lemo-yxk/lemo/exception"
 
 	"server/app"
@@ -25,7 +24,7 @@ var Update *update
 func (l *update) EndCheck(conn *lemo.WebSocket, receive *lemo.Receive) exception.ErrorFunc {
 	for c := range app.Connection().Range() {
 		if c.Key != "redis-desktop-server" {
-			console.Log(c.Value.Push(receive.Body.MessageType, receive.Body.Raw))
+			_ = c.Value.Push(receive.Body.MessageType, receive.Body.Raw)
 		}
 	}
 

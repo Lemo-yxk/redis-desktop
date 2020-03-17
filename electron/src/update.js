@@ -111,23 +111,30 @@ class Update {
 	}
 
 	async checkUdate() {
-		if (this.isCheck) return { err: null, shouldUpdate: false, version: 0 };
+		return new Promise(async (r, j) => {
+			if (this.isCheck) return r({ err: null, shouldUpdate: false, version: 0 });
+			this.isCheck = true;
 
-		this.isCheck = true;
-		try {
-			let response = await axios({
+			setTimeout(() => {
+				r({ err: { message: "timeout" }, shouldUpdate: false, version: 0 });
+				this.isCheck = false;
+			}, 6000);
+
+			axios({
 				method: "get",
 				url: this.checkPackageUrl,
-				responseType: "json",
-				timeout: 6000
-			});
-			this.newVersion = response.data.clientVersion;
-			return { err: null, shouldUpdate: true, version: this.newVersion };
-		} catch (err) {
-			return { err: err, shouldUpdate: false, version: 0 };
-		} finally {
-			this.isCheck = false;
-		}
+				responseType: "json"
+			})
+				.then(response => {
+					this.newVersion = response.data.clientVersion;
+					r({ err: null, shouldUpdate: true, version: this.newVersion });
+					this.isCheck = false;
+				})
+				.catch(err => {
+					r({ err: err, shouldUpdate: false, version: 0 });
+					this.isCheck = false;
+				});
+		});
 	}
 
 	update(callback) {

@@ -12,6 +12,7 @@ package websocket
 
 import (
 	"github.com/Lemo-yxk/lemo"
+	"github.com/Lemo-yxk/lemo/console"
 
 	"server/app"
 )
@@ -31,6 +32,14 @@ func Init() {
 	server.OnClose = Close
 
 	server.OnError = Error
+
+	server.OnMessage = func(conn *lemo.WebSocket, messageType int, msg []byte) {
+		if len(msg) == 0 {
+			return
+		}
+
+		console.Log(string(msg))
+	}
 
 	var router = new(lemo.WebSocketServerRouter)
 

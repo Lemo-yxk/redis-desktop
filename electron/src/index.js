@@ -17,7 +17,6 @@ let dev = !!process.env.NODE_ENV;
 
 function quit(callback) {
 	if (!server) return callback();
-
 	if (process.platform === "win32") {
 		child.exec(`taskkill /T /F /PID ${server.pid}`, () => callback());
 	} else {
@@ -33,10 +32,19 @@ function restart() {
 function startServer() {
 	if (!dev) {
 		if (process.platform === "win32") {
-			server = child.exec(path.join(__dirname, "/windows-server/server.exe"), err => console.log(err));
+			server = child.spawn(path.join(__dirname, "/windows-server/server.exe"), {
+				stdio: "pipe"
+			});
 		} else {
-			server = child.exec(path.join(__dirname, "/mac-server/server"), err => console.log(err));
+			server = child.exec(path.join(__dirname, "/mac-server/server"), {
+				stdio: "pipe"
+			});
 		}
+		server.stdout.on("data", data => {
+			console.log(data);
+		});
+
+		server.on("error", err => console.log(err));
 	}
 }
 
@@ -159,9 +167,9 @@ var Socket = require("./socket");
 var Update = require("./update");
 
 var ws = new Socket(app);
-var update = new Update(app, ws);
 
 ws.start(() => {
+	new Update(app, ws);
 	appStart();
-	app.emit("activate");
+	app.emit("ready");
 });
