@@ -131,6 +131,8 @@ class Tree {
 
 			temp.push(item);
 			temp = item.children;
+
+			if (index === params.length - 1) return item;
 		}
 	}
 

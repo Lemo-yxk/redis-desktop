@@ -1,0 +1,44 @@
+.setting {
+	.setting-form {
+		margin: 5px 0px;
+		min-height: 200px;
+
+		> .ant-input-group-wrapper {
+			margin: 5px 0;
+
+			.ant-input-group-addon {
+				width: 80px;
+			}
+		}
+
+		> .add-input-box {
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			position: relative;
+			width: 100%;
+			padding: 10px 5px;
+			border: 1px solid #eeeeee;
+
+			.add {
+			}
+
+			.input {
+				width: 70%;
+				> .ant-input-group-wrapper {
+					margin: 5px 0;
+				}
+			}
+		}
+	}
+
+	.button-box {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		button {
+			margin-right: 10px;
+		}
+		margin-top: 10px;
+	}
+}

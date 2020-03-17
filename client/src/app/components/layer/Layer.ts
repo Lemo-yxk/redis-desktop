@@ -9,6 +9,7 @@ class Layer {
 		div.style.width = "100vw";
 		div.style.height = "100vh";
 		div.style.position = "absolute";
+		div.style.zIndex = "999999";
 		div.style.top = "0";
 		div.style.left = "0";
 		div.style.display = "none";

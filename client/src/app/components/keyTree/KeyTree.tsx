@@ -89,6 +89,7 @@ export default class KeyTree extends Component {
 			while (1) {
 				if (!temp.parent) break;
 				temp.parent.toggled = true;
+				temp.parent.active = false;
 				temp = temp.parent;
 			}
 		}

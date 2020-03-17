@@ -25,7 +25,7 @@ var Login *login
 
 func (l *login) Login(conn *lemo.WebSocket, receive *lemo.Receive) exception.ErrorFunc {
 
-	var message = utils.Json.Bytes(receive.Message.Message)
+	var message = utils.Json.Bytes(receive.Body.Message)
 
 	var uuid = message.Get("uuid").String()
 
@@ -33,7 +33,7 @@ func (l *login) Login(conn *lemo.WebSocket, receive *lemo.Receive) exception.Err
 
 	console.Log("add", uuid, conn.FD)
 
-	return conn.Server.JsonFormat(conn.FD, lemo.JsonPackage{Event: receive.Message.Event, Message: lemo.JsonFormat{
+	return conn.Server.JsonFormat(conn.FD, lemo.JsonPackage{Event: receive.Body.Event, Message: lemo.JsonFormat{
 		Status: "SUCCESS",
 		Code:   200,
 		Msg:    nil,

@@ -17,12 +17,12 @@ import (
 )
 
 func UUID(conn *lemo.WebSocket, receive *lemo.Receive) (lemo.Context, exception.ErrorFunc) {
-	var uuid = utils.Json.Bytes(receive.Message.Message).Get("uuid").String()
+	var uuid = utils.Json.Bytes(receive.Body.Message).Get("uuid").String()
 
 	if uuid == "" {
 		const errMsg = `uuid is empty`
 		return conn.JsonFormat(lemo.JsonPackage{
-			Event: receive.Message.Event,
+			Event: receive.Body.Event,
 			Message: lemo.JsonFormat{
 				Status: "ERROR",
 				Code:   404,

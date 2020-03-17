@@ -1,5 +1,6 @@
 import Socket from "lows";
 import Config from "../components/config/Config";
+import { message } from "antd";
 
 class WebSocket {
 	ws: Socket;

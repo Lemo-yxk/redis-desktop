@@ -1,60 +1,64 @@
 {
-	"name": "redis-desktop",
-	"productName": "redis-desktop",
-	"version": "1.0.0",
-	"description": "My Electron application description",
-	"main": "src/index.js",
-	"scripts": {
-		"start": "NODE_ENV=dev electron-forge start",
-		"package": "electron-forge package",
-		"make": "electron-forge make",
-		"publish": "electron-forge publish",
-		"lint": "echo \"No linting configured\""
-	},
-	"keywords": [],
-	"author": {
-		"name": "lemo",
-		"email": "lemo@gamstudio.net"
-	},
-	"license": "MIT",
-	"config": {
-		"forge": {
-			"packagerConfig": {
-				"icon": "./src/redis.icns"
-			},
-			"makers": [
-				{
-					"name": "@electron-forge/maker-squirrel",
-					"config": {
-						"name": "redis_desktop"
-					}
-				},
-				{
-					"name": "@electron-forge/maker-zip",
-					"platforms": [
-						"darwin"
-					]
-				},
-				{
-					"name": "@electron-forge/maker-deb",
-					"config": {}
-				},
-				{
-					"name": "@electron-forge/maker-rpm",
-					"config": {}
-				}
-			]
-		}
-	},
-	"dependencies": {
-		"electron-squirrel-startup": "^1.0.0"
-	},
-	"devDependencies": {
-		"@electron-forge/cli": "6.0.0-beta.50",
-		"@electron-forge/maker-deb": "6.0.0-beta.50",
-		"@electron-forge/maker-rpm": "6.0.0-beta.50",
-		"@electron-forge/maker-squirrel": "6.0.0-beta.50",
-		"@electron-forge/maker-zip": "6.0.0-beta.50",
-		"electron": "8.0.2"
-	}
+    "name": "redis-desktop",
+    "productName": "redis-desktop",
+    "version": "1.0.0",
+    "description": "My Electron application description",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "NODE_ENV=dev electron-forge start",
+        "package": "electron-forge package",
+        "make": "electron-forge make",
+        "publish": "electron-forge publish",
+        "lint": "echo \"No linting configured\""
+    },
+    "keywords": [],
+    "author": {
+        "name": "lemo",
+        "email": "lemo@gamstudio.net"
+    },
+    "license": "MIT",
+    "config": {
+        "forge": {
+            "packagerConfig": {
+                "icon": "./src/redis.icns"
+            },
+            "makers": [
+                {
+                    "name": "@electron-forge/maker-squirrel",
+                    "config": {
+                        "name": "redis_desktop"
+                    }
+                },
+                {
+                    "name": "@electron-forge/maker-zip",
+                    "platforms": [
+                        "darwin"
+                    ]
+                },
+                {
+                    "name": "@electron-forge/maker-deb",
+                    "config": {}
+                },
+                {
+                    "name": "@electron-forge/maker-rpm",
+                    "config": {}
+                }
+            ]
+        }
+    },
+    "dependencies": {
+        "axios": "^0.19.2",
+        "electron-squirrel-startup": "^1.0.0",
+        "lows": "^1.1.3",
+        "node-pty": "^0.9.0",
+        "unzip-stream": "^0.3.0"
+    },
+    "devDependencies": {
+        "@electron-forge/cli": "6.0.0-beta.50",
+        "@electron-forge/maker-deb": "6.0.0-beta.50",
+        "@electron-forge/maker-rpm": "6.0.0-beta.50",
+        "@electron-forge/maker-squirrel": "6.0.0-beta.50",
+        "@electron-forge/maker-zip": "6.0.0-beta.50",
+        "electron": "8.0.2"
+    }
 }

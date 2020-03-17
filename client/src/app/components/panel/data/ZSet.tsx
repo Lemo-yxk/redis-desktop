@@ -249,6 +249,8 @@ export default class ZSet extends Component<Props> {
 		if (!r) return this.closeRename();
 		Event.emit("insertKey", newKey, true);
 		Event.emit("deleteKey", oldKey);
+		Event.emit("activeKey", oldKey, false);
+		Event.emit("activeKey", newKey, true);
 		this.closeRename();
 		this.parent.update(this.type, oldKey, newKey);
 	}
