@@ -42,7 +42,7 @@ export default class Hash extends Component<Props> {
 		addRow: false,
 		addRowValue: "",
 		addRowKey: "",
-		view: "显示格式"
+		view: "显示格式",
 	};
 
 	type = "";
@@ -75,6 +75,8 @@ export default class Hash extends Component<Props> {
 		for (const key in res) {
 			this.allData.push({ key: key, value: res[key] });
 		}
+
+		this.allData.sort((a, b) => (a.key > b.key ? 1 : -1));
 
 		this.select(type, key);
 	}
@@ -134,7 +136,12 @@ export default class Hash extends Component<Props> {
 			value.style = Object.assign({ background: "rgb(186, 231, 225)" }, value.style);
 		}
 		return (
-			<div key={value.index} style={value.style} className="list-item" onClick={el => this.selectItem(el, value)}>
+			<div
+				key={value.index}
+				style={value.style}
+				className="list-item"
+				onClick={(el) => this.selectItem(el, value)}
+			>
 				<div className="i">{(this.page - 1) * this.size + value.index + 1}</div>
 				<div className="key">{this.state.list[value.index].key}</div>
 				<div className="value">{this.state.list[value.index].value}</div>
@@ -333,7 +340,7 @@ export default class Hash extends Component<Props> {
 					<Input
 						spellCheck={false}
 						value={this.state.key}
-						onChange={value => this.setState({ key: value.target.value })}
+						onChange={(value) => this.setState({ key: value.target.value })}
 					></Input>
 				</Modal>
 
@@ -352,13 +359,13 @@ export default class Hash extends Component<Props> {
 							spellCheck={false}
 							value={this.state.addRowKey}
 							addonBefore={"KEY"}
-							onChange={value => this.setState({ addRowKey: value.target.value })}
+							onChange={(value) => this.setState({ addRowKey: value.target.value })}
 						></Input>
 						<Input
 							spellCheck={false}
 							value={this.state.addRowValue}
 							addonBefore={"VALUE"}
-							onChange={value => this.setState({ addRowValue: value.target.value })}
+							onChange={(value) => this.setState({ addRowValue: value.target.value })}
 						></Input>
 					</div>
 				</Modal>
@@ -394,7 +401,7 @@ export default class Hash extends Component<Props> {
 							<Select
 								value={this.state.view}
 								style={{ width: 100 }}
-								onSelect={value => this.changeView(value)}
+								onSelect={(value) => this.changeView(value)}
 							>
 								<Option key="text" value="text">
 									text
@@ -447,14 +454,14 @@ export default class Hash extends Component<Props> {
 							<Input
 								value={this.state.showKey}
 								spellCheck={false}
-								onChange={value => this.onChangeShowKey(value.target.value)}
+								onChange={(value) => this.onChangeShowKey(value.target.value)}
 							></Input>
 						</div>
 						<div className="bottom">
 							<TextArea
 								spellCheck={false}
 								value={this.state.showValue}
-								onChange={value => this.onChangeShowValue(value.target.value)}
+								onChange={(value) => this.onChangeShowValue(value.target.value)}
 							/>
 						</div>
 					</div>
@@ -471,7 +478,7 @@ export default class Hash extends Component<Props> {
 							<Input
 								onBlur={() => this.setPage(this.state.page || this.page)}
 								value={this.state.page}
-								onChange={value => this.setPage(value.target.value)}
+								onChange={(value) => this.setPage(value.target.value)}
 							></Input>
 							<Button onClick={this.go}>GO</Button>
 						</div>

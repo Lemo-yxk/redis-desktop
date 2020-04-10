@@ -43,7 +43,7 @@ class Update {
 
 	startUpdate(e, data) {
 		console.log("startUpdate");
-		this.update(err => {
+		this.update((err) => {
 			this.writeVersion(this.newVersion);
 			this.ws.Emit("/client/update/endUpdate", { err: err });
 		});
@@ -76,9 +76,9 @@ class Update {
 			axios({
 				method: "get",
 				url: url,
-				responseType: "stream"
+				responseType: "stream",
 			})
-				.then(response => {
+				.then((response) => {
 					var data = response.data;
 					var headers = response.headers;
 
@@ -86,22 +86,22 @@ class Update {
 
 					let counter = 0;
 
-					data.on("data", bytes => {
+					data.on("data", (bytes) => {
 						counter += bytes.length;
 						this.progressUpdate((counter / totalLength) * 100);
 					});
 
-					data.on("end", bytes => {
+					data.on("end", (bytes) => {
 						r();
 					});
 
-					data.on("error", bytes => {
-						j(r);
+					data.on("error", (err) => {
+						j(err);
 					});
 
 					data.pipe(fs.createWriteStream(this.distZipPath));
 				})
-				.catch(err => j(err));
+				.catch((err) => j(err));
 		});
 	}
 
@@ -123,14 +123,14 @@ class Update {
 			axios({
 				method: "get",
 				url: this.checkPackageUrl,
-				responseType: "json"
+				responseType: "json",
 			})
-				.then(response => {
+				.then((response) => {
 					this.newVersion = response.data.clientVersion;
 					r({ err: null, shouldUpdate: true, version: this.newVersion });
 					this.isCheck = false;
 				})
-				.catch(err => {
+				.catch((err) => {
 					r({ err: err, shouldUpdate: false, version: 0 });
 					this.isCheck = false;
 				});
@@ -145,10 +145,10 @@ class Update {
 				}
 				var z = fs.createReadStream(this.distZipPath);
 				z.on("end", () => callback());
-				z.on("error", err => callback(err));
+				z.on("error", (err) => callback(err));
 				z.pipe(unzip.Extract({ path: __dirname }));
 			})
-			.catch(err => callback(err));
+			.catch((err) => callback(err));
 	}
 
 	mv(oldPath, newPath) {
