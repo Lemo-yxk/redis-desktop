@@ -321,14 +321,17 @@ export default class KeyTree extends Component {
 			this.selectedNode.active = false;
 		}
 
-		this.selectedNode = node;
+		node.active = true;
 
-		this.selectedNode.active = true;
-
-		if (this.selectedNode.children) {
-			this.selectedNode.toggled = toggled;
+		if (node.children && node.children.length > 0) {
+			if (this.selectedNode) {
+				this.selectedNode.active = true;
+			}
+			node.active = false;
+			node.toggled = toggled;
 		} else {
 			this.onSelect(node.name);
+			this.selectedNode = node;
 		}
 
 		this.updateTree();
