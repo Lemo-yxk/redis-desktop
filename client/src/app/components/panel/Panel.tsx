@@ -3,14 +3,17 @@ import "./panel.scss";
 import Event from "../../event/Event";
 import String from "./data/String";
 import List from "./data/List";
-import { Tabs } from "antd";
 import Hash from "./data/Hash";
 import Set from "./data/Set";
 import ZSet from "./data/ZSet";
-const { TabPane } = Tabs;
+
+import { Tabs, Tab, Paper } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+
 export default class Panel extends Component {
 	state = { activeKey: "", panes: [] as any[] };
 	serverName = "";
+	maxPane = 5;
 
 	createComponent(type: string, key: string) {
 		let component = null;
@@ -64,7 +67,7 @@ export default class Panel extends Component {
 		Event.add("selectKey", (serverName: string, type: string, key: string) => {
 			this.serverName = serverName;
 
-			if (this.state.panes.find(v => v.key === key)) {
+			if (this.state.panes.find((v) => v.key === key)) {
 				this.setState({ activeKey: key });
 				return;
 			}
@@ -75,7 +78,7 @@ export default class Panel extends Component {
 
 			panes.push({ title: key, content: component, key: key });
 
-			if (panes.length > 3) panes.shift();
+			if (panes.length > this.maxPane) panes.shift();
 
 			this.setState({ panes: panes, activeKey: key });
 		});
@@ -132,18 +135,22 @@ export default class Panel extends Component {
 				activeKey = panes[0].key;
 			}
 		}
+
 		this.setState({ panes, activeKey });
-		if (panes.length === 0) {
-			Event.emit("activeKey", activeKey, false);
-		} else {
-			this.onChange(activeKey);
-		}
+		Event.emit("activeKey", activeKey, !(panes.length === 0));
 	};
+
+	a11yProps(index: any) {
+		return {
+			id: `scrollable-auto-tab-${index}`,
+			"aria-controls": `scrollable-auto-tabpanel-${index}`,
+		};
+	}
 
 	render() {
 		return (
 			<div className="panel">
-				<Tabs
+				{/* <Tabs
 					onChange={this.onChange}
 					activeKey={this.state.activeKey}
 					type="editable-card"
@@ -172,8 +179,100 @@ export default class Panel extends Component {
 							</TabPane>
 						)
 					)}
-				</Tabs>
+				</Tabs> */}
+
+				<Paper style={{ height: "48px", marginBottom: "5px" }}>
+					<Tabs
+						value={this.state.activeKey}
+						indicatorColor="primary"
+						textColor="primary"
+						onChange={(e: any, activeKey: any) => e.stopPropagation() || this.onChange(activeKey)}
+						variant="scrollable"
+						scrollButtons="auto"
+						style={{ height: "48px" }}
+					>
+						{this.state.panes.map(
+							(
+								pane: {
+									title: React.ReactNode;
+									key: string;
+									content: React.ReactNode;
+								},
+								index: number
+							) => (
+								<Tab
+									style={{ height: "100%" }}
+									label={
+										<TabTitle
+											title={pane.title}
+											onClick={(e: any) => e.stopPropagation() || this.remove(pane.key)}
+										></TabTitle>
+									}
+									value={pane.key}
+									key={pane.key}
+									{...this.a11yProps(index)}
+								/>
+							)
+						)}
+					</Tabs>
+				</Paper>
+				<Paper style={{ height: "calc(100% - 48px - 5px)" }}>
+					{this.state.panes.map(
+						(
+							pane: {
+								title: React.ReactNode;
+								key: string;
+								content: React.ReactNode;
+							},
+							index: number
+						) => (
+							<TabPanel
+								style={{ height: "100%" }}
+								value={pane.key}
+								key={pane.key}
+								index={index}
+								selected={this.state.activeKey}
+							>
+								{pane.content}
+							</TabPanel>
+						)
+					)}
+				</Paper>
 			</div>
 		);
 	}
+}
+
+interface TabPanelProps {
+	children?: React.ReactNode;
+	index: any;
+	value: any;
+	selected: any;
+	style: any;
+}
+
+function TabPanel(props: TabPanelProps) {
+	const { children, value, index, selected, style } = props;
+	const content = value === selected ? children : null;
+	return (
+		<div
+			role="tabpanel"
+			hidden={value !== selected}
+			id={`scrollable-auto-tabpanel-${index}`}
+			aria-labelledby={`scrollable-auto-tab-${index}`}
+			style={style}
+		>
+			{content}
+		</div>
+	);
+}
+
+function TabTitle(props: any) {
+	const { title, onClick } = props;
+	return (
+		<div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", width: "100%" }}>
+			<CloseIcon onClick={onClick} style={{ fontSize: 20, width: 30 }} />
+			<div>{title}</div>
+		</div>
+	);
 }

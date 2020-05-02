@@ -2,7 +2,8 @@
 	// background: #ffffff;
 	position: relative !important;
 	height: 100%;
-	border: 1px solid #dddddd;
+	// border: 1px solid #dddddd;
+	padding: 5px 0 5px 5px;
 
 	.select-panel {
 		display: flex;
@@ -21,6 +22,7 @@
 
 		.css-1up7t0w {
 			background-color: transparent;
+			padding: 0;
 		}
 	}
 
@@ -59,4 +61,8 @@
 
 .css-80f7ae {
 	color: rgba(0, 0, 0, 0.65) !important;
+}
+
+.css-1s1o8u8 {
+	padding-left: 24px !important;
 }

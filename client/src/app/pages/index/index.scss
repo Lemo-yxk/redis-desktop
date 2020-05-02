@@ -13,7 +13,6 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		background: black;
 	}
 
 	> .content {
@@ -22,17 +21,5 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-	}
-
-	.ant-input:hover {
-		border: 1px solid #d9d9d9 !important;
-	}
-
-	.ant-input:focus,
-	.ant-input-focused {
-		border: 1px solid #d9d9d9 !important;
-		outline: none;
-		-webkit-box-shadow: unset;
-		box-shadow: unset;
 	}
 }

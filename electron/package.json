@@ -1,11 +1,8 @@
 {
 	"name": "redis-desktop",
-	"productName": "redis-desktop",
 	"version": "1.0.0",
 	"description": "My Electron application description",
 	"main": "src/index.js",
-	"downUpdateUrl": "",
-	"clientVersion": "1.0.0",
 	"scripts": {
 		"start": "NODE_ENV=dev electron-forge start",
 		"package": "electron-forge package",

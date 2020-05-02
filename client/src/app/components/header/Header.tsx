@@ -1,35 +1,36 @@
-import React, { Component } from "react";
-import { Button } from "antd";
+import React, {Component} from "react";
 import "./header.scss";
 import Event from "../../event/Event";
-import { AlignLeftOutlined, PlusOutlined, SettingOutlined } from "@ant-design/icons";
+import {AddOutlined, MenuOpenOutlined, Settings} from "@material-ui/icons";
+import {AppBar, Button} from "@material-ui/core";
 
 export default class Header extends Component {
-	state = { date: "" };
 
-	addKey = () => {
-		Event.emit("addKey");
-	};
 
-	componentDidMount() {}
+    componentDidMount() {
 
-	render() {
-		return (
-			<div className="header">
-				<div className="left">
-					<Button type="link" ghost onClick={this.addKey}>
-						<PlusOutlined />
-					</Button>
-				</div>
-				<div className="right">
-					<Button type="dashed" ghost onClick={() => Event.emit("openSetting")}>
-						<SettingOutlined />
-					</Button>
-					<Button type="dashed" danger ghost onClick={() => Event.emit("openServerList")}>
-						<AlignLeftOutlined />
-					</Button>
-				</div>
-			</div>
-		);
-	}
+
+    }
+
+    render() {
+        return (
+            <div className="header">
+                <AppBar className="app-bar">
+                    <div className="left">
+                        <Button onClick={() => Event.emit("addKey")}>
+                            <AddOutlined style={{color: "white"}}/>
+                        </Button>
+                    </div>
+                    <div className="right">
+                        <Button onClick={() => Event.emit("openSetting")}>
+                            <Settings style={{color: "white"}}/>
+                        </Button>
+                        <Button onClick={() => Event.emit("openServerList")}>
+                            <MenuOpenOutlined style={{color: "white"}}/>
+                        </Button>
+                    </div>
+                </AppBar>
+            </div>
+        );
+    }
 }

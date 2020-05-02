@@ -1,197 +1,208 @@
-import React, { Component } from "react";
-import { Drawer, Button, Modal, Popconfirm } from "antd";
+import React, {Component} from "react";
 import Event from "../../event/Event";
 import "./serverList.scss";
 import Config from "../config/Config";
 import Command from "../../services/Command";
-import { QuestionCircleOutlined, DownloadOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Collapse } from "antd";
-import { config } from "../../interface/config";
-const { Panel } = Collapse;
+import {config} from "../../interface/config";
+import {Button, Collapse, Drawer, List, ListItem} from "@material-ui/core";
+import {Theme, withStyles} from '@material-ui/core/styles';
+import {AddOutlined, ArrowDownward, DeleteOutline, ExpandLess, ExpandMore} from '@material-ui/icons'
 
-export default class ServerList extends Component {
-	state = { visible: false, configs: Config.allConfig() as { [key: string]: config } };
+const useStyles = (theme: Theme) =>
+    ({
+        root: {
+            width: '100%',
+            backgroundColor: theme.palette.background.paper,
+        },
+        nested: {
+            paddingLeft: theme.spacing(4),
+        },
+    })
 
-	onClose() {
-		this.setState({ visible: false });
-	}
+class ServerList extends Component<any, any> {
+    state = {index: -1, visible: false, configs: Config.allConfig() as { [key: string]: config }};
 
-	onOpen() {
-		this.setState({ visible: true });
-	}
+    onClose() {
+        this.setState({visible: false});
+    }
 
-	componentDidMount() {
-		Event.add("openServerList", () => this.onOpen());
-		Event.add("addServer", () => this.setState({ configs: Config.allConfig() }));
-		Event.add("updateServer", () => this.setState({ configs: Config.allConfig() }));
-	}
+    onOpen() {
+        this.setState({visible: true});
+    }
 
-	componentWillUnmount() {
-		Event.remove("openServerList");
-		Event.remove("addServer");
-		Event.remove("updateServer");
-	}
+    componentDidMount() {
+        Event.add("openServerList", () => this.onOpen());
+        Event.add("addServer", () => this.setState({configs: Config.allConfig()}));
+        Event.add("updateServer", () => this.setState({configs: Config.allConfig()}));
+    }
 
-	update(config: config) {
-		// Event.emit("update", config.name);
-		Event.emit("openAddServer", config);
-		this.onClose();
-	}
+    componentWillUnmount() {
+        Event.remove("openServerList");
+        Event.remove("addServer");
+        Event.remove("updateServer");
+    }
 
-	connect(config: config) {
-		Event.emit("connect", config.name, config.connectType);
-		this.onClose();
-	}
+    update(config: config) {
+        // Event.emit("update", config.name);
+        Event.emit("openAddServer", config);
+        this.onClose();
+    }
 
-	disconnect(config: config) {
-		// this.onClose();
-		Event.emit("disconnect", config.name);
-		Command.disconnect(config.name);
-	}
+    connect(config: config) {
+        Event.emit("connect", config.name, config.connectType);
+        this.onClose();
+    }
 
-	delete(config: config) {
-		Config.deleteConfig(config.name);
-		this.setState({ configs: Config.allConfig() });
-		Event.emit("delete", config.name);
-		Command.disconnect(config.name);
-	}
+    disconnect(config: config) {
+        // this.onClose();
+        Event.emit("disconnect", config.name);
+        Command.disconnect(config.name);
+    }
 
-	setDefault(config: config) {
-		for (const key in this.state.configs) {
-			if (key === config.name) continue;
-			this.state.configs[key].default = false;
-			Config.setConfig(key, this.state.configs[key]);
-		}
-		config.default = !config.default;
-		Config.setConfig(config.name, config);
-		this.setState({ configs: Config.allConfig() });
-	}
+    delete(config: config) {
+        Config.deleteConfig(config.name);
+        this.setState({configs: Config.allConfig()});
+        Event.emit("delete", config.name);
+        Command.disconnect(config.name);
+    }
 
-	addServer() {
-		Event.emit("openAddServer");
-		this.onClose();
-	}
+    setDefault(config: config) {
+        for (const key in this.state.configs) {
+            if (key === config.name) continue;
+            this.state.configs[key].default = false;
+            Config.setConfig(key, this.state.configs[key]);
+        }
+        config.default = !config.default;
+        Config.setConfig(config.name, config);
+        this.setState({configs: Config.allConfig()});
+    }
 
-	render() {
-		let configs = Object.values(this.state.configs);
+    addServer() {
+        Event.emit("openAddServer");
+        this.onClose();
+    }
 
-		return (
-			<Drawer
-				title={
-					<div className="server-list-header">
-						<div className="left">服务器列表</div>
-						<div className="right">
-							<Button type="primary" onClick={() => this.addServer()}>
-								<PlusOutlined />
-							</Button>
-							<Button
-								type="default"
-								onClick={() =>
-									Modal.confirm({
-										content: "确定导出所有配置?",
-										okText: "别啰嗦,快点!",
-										cancelText: "我再想想.",
-										onOk: () => {
-											Command.export("config.json", JSON.stringify(Config.allConfig()));
-										}
-									})
-								}
-							>
-								<DownloadOutlined />
-							</Button>
-							<Button
-								type="danger"
-								onClick={() =>
-									Modal.confirm({
-										content: "确定清除所有配置?",
-										okText: "别啰嗦,快点!",
-										cancelText: "我再想想.",
-										onOk: () => {
-											Config.deleteAllConfig();
-											this.setState({ configs: {} });
-										}
-									})
-								}
-							>
-								<DeleteOutlined />
-							</Button>
-						</div>
-					</div>
-				}
-				placement="right"
-				closable={false}
-				onClose={() => this.onClose()}
-				visible={this.state.visible}
-				getContainer={false}
-				width={"400px"}
-				className="server-list"
-				destroyOnClose
-			>
-				{configs.length > 0 ? (
-					<Collapse>
-						{configs.map(config => (
-							<Panel
-								header={
-									<div className="panel-title">
-										{config.default ? (
-											<div>{`${config.name} (默认)`}</div>
-										) : (
-											<div>{config.name}</div>
-										)}
 
-										<div>
-											<Button
-												type="link"
-												onClick={e => {
-													e.stopPropagation();
-													this.connect(config);
-												}}
-											>
-												连接
-											</Button>
-											<Button
-												type="link"
-												danger
-												onClick={e => {
-													e.stopPropagation();
-													this.disconnect(config);
-												}}
-											>
-												断开
-											</Button>
-										</div>
-									</div>
-								}
-								key={config.name}
-							>
-								<div className="db-header" key={config.name}>
-									<div>{config.name}</div>
-									<div className="button">
-										<Button type="link" onClick={() => this.setDefault(config)}>
-											{config.default ? "取消默认" : "设为默认"}
-										</Button>
-										<Button type="link" onClick={() => this.update(config)}>
-											修改
-										</Button>
+    render() {
 
-										<Popconfirm
-											title={`确定要删除 ${config.name} 吗?`}
-											onConfirm={() => this.delete(config)}
-											okText="确定"
-											cancelText="取消"
-											icon={<QuestionCircleOutlined style={{ color: "red" }} />}
-										>
-											<Button type="link" danger>
-												删除
-											</Button>
-										</Popconfirm>
-									</div>
-								</div>
-							</Panel>
-						))}
-					</Collapse>
-				) : null}
-			</Drawer>
-		);
-	}
+        const classes = this.props.classes;
+
+        let configs = Object.values(this.state.configs);
+
+        return (
+
+            <Drawer
+                // anchor={this.status === "add" ? "left" : "right"}
+                anchor={"right"}
+                open={this.state.visible}
+                onClose={() => this.onClose()}
+            >
+
+                <div className="server-list">
+                    <div className="server-list-header">
+                        <div className="right">
+                            <Button variant="contained" onClick={() => this.addServer()}>
+                                <AddOutlined/>
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() =>
+                                    Event.emit("openModal", {
+                                        Content: "确定导出所有配置?",
+                                        Ok: () => {
+                                            Command.export("config.json", JSON.stringify(Config.allConfig()));
+                                        }
+                                    })
+                                }
+                            >
+                                <ArrowDownward/>
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                onClick={() =>
+                                    Event.emit("openModal", {
+                                        Content: "确定清除所有配置?",
+                                        Ok: () => {
+                                            Config.deleteAllConfig();
+                                            this.setState({configs: {}});
+                                        }
+                                    })
+                                }
+                            >
+                                <DeleteOutline/>
+                            </Button>
+                        </div>
+                    </div>
+
+                    <List className={classes.root}>
+                        {configs.map((config, index) => (
+                            <div key={index}>
+                                <ListItem key={config.name} button onClick={() => this.setState({index: this.state.index === index ? -1 : index})}>
+
+                                    {this.state.index === index ? <ExpandLess/> : <ExpandMore/>}
+
+                                    <div className="panel-title">
+
+                                        <div style={{marginLeft:10}}>{config.default ? `${config.name} (默认)` : config.name}</div>
+                                        <div>
+                                            <Button
+                                                color="primary"
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    this.connect(config);
+                                                }}
+                                            >
+                                                连接
+                                            </Button>
+                                            <Button
+                                                color="secondary"
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    this.disconnect(config);
+                                                }}
+                                            >
+                                                断开
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </ListItem>
+                                <Collapse in={this.state.index === index} addEndListener={() => {
+                                }}>
+                                    <List component="div" disablePadding>
+                                        <ListItem button className={classes.nested}>
+                                            <div className="db-header" key={config.name}>
+                                                <div>{config.name}</div>
+                                                <div className="button">
+                                                    <Button onClick={() => this.setDefault(config)}>
+                                                        {config.default ? "取消默认" : "设为默认"}
+                                                    </Button>
+                                                    <Button onClick={() => this.update(config)}>
+                                                        修改
+                                                    </Button>
+
+
+                                                    <Button onClick={() => {
+                                                        Event.emit("openModal", {
+                                                            Content: `确定要删除 ${config.name} 吗?`,
+                                                            Ok: () => this.delete(config)
+                                                        })
+                                                    }}>
+                                                        删除
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </ListItem>
+                                    </List>
+                                </Collapse>
+                            </div>
+                        ))}
+                    </List>
+                </div>
+            </Drawer>
+        );
+    }
 }
+
+export default withStyles(useStyles)(ServerList)

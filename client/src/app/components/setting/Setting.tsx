@@ -1,110 +1,121 @@
-import React, { Component } from "react";
-import { Drawer, Button, Modal, message, Tabs } from "antd";
+import React, {Component} from "react";
 import Event from "../../event/Event";
 import "./setting.scss";
 import WebSocket from "../../ws/WebSocket";
+import {Button, Drawer, Tab, Tabs} from "@material-ui/core";
+import {createStyles, withStyles} from '@material-ui/styles'
 // import { Terminal } from "xterm";
 // import "../../../../node_modules/xterm/css/xterm.css";
 // const os = window.require("electron").remote.require("os");
 // const process = window.require("electron").remote.require("process");
 // const pty = window.require("electron").remote.require("node-pty");
-const { TabPane } = Tabs;
+const styleSheet = createStyles({
+    paper: {
+        height: '80%'
+    }
+})
 
-export default class Setting extends Component {
-	state = { visible: false, loading: false, progress: 0 };
 
-	onClose() {
-		this.setState({ visible: false });
-	}
+class Setting extends Component<any, any> {
+    state = {visible: false, loading: false, progress: 0, index: 0};
 
-	onOpen() {
-		this.setState({ visible: true });
-	}
+    onClose() {
+        this.setState({visible: false});
+    }
 
-	componentDidMount() {
-		Event.add("openSetting", () => this.onOpen());
+    onOpen() {
+        this.setState({visible: true});
+    }
 
-		WebSocket.ws.AddListener("/client/update/endCheck", (e: any, data: any) => this.endCheck(data));
+    componentDidMount() {
+        Event.add("openSetting", () => this.onOpen());
+    }
 
-		WebSocket.ws.AddListener("/client/update/endUpdate", (e: any, data: any) => this.endUpdate(data));
+    componentWillUnmount() {
+        Event.remove("openSetting");
+    }
 
-		WebSocket.ws.AddListener("/client/update/progressUpdate", (e: any, data: any) => this.progressUpdate(data));
-	}
+    restart() {
+        WebSocket.ws.Emit("/Electron/System/restart");
+    }
 
-	componentWillUnmount() {
-		Event.remove("openSetting");
-	}
+    command() {
+        WebSocket.ws.Emit("/Electron/System/command", `console.log(this.app)`);
+    }
 
-	startCheck() {
-		this.setState({ loading: true });
-		WebSocket.ws.Emit("/server/update/startCheck");
-	}
+    render() {
 
-	endCheck(data: any) {
-		if (data.err) {
-			this.setState({ loading: false });
-			return message.error(data.err.message);
-		}
+        const classes = this.props.classes
 
-		if (!data.shouldUpdate) {
-			this.setState({ loading: false });
-			message.info(`当前已经是最新版本`);
-		}
+        return (
+            <Drawer
+                anchor={"top"}
+                open={this.state.visible}
+                onClose={() => this.onClose()}
+                classes={{paper: classes.paper}}
+            >
+                <div className="setting">
+                    <Tabs
+                        value={this.state.index}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="fullWidth"
+                        onChange={(e, value) => this.setState({index: value})}
+                    >
+                        <Tab label="基本设置" key={0} value={0} {...a11yProps(0)} />
+                        <Tab label="高级设置" key={1} value={1} {...a11yProps(1)} />
+                    </Tabs>
 
-		if (data.shouldUpdate) {
-			return this.startUpdate();
-		}
-	}
+                    <TabPanel value={this.state.index} index={0}>
+                        <div className="setting-form">
+                            {/*<Button variant="contained" onClick={() => this.restart()}>*/}
+                            {/*    重启*/}
+                            {/*</Button>*/}
 
-	startUpdate() {
-		WebSocket.ws.Emit("/server/update/startUpdate");
-	}
+                            {/*<Button variant="contained" onClick={() => this.command()}>*/}
+                            {/*    命令*/}
+                            {/*</Button>*/}
+                        </div>
+                        <div className="button-box">
+                            <Button variant="contained">保存</Button>
+                        </div>
+                    </TabPanel>
 
-	endUpdate(data: any) {
-		this.setState({ loading: false, progress: 0 });
+                </div>
 
-		if (data.err) {
-			return message.error(data.err.code);
-		}
-
-		Modal.info({ content: "更新完毕,点击确定重启.", onOk: () => this.restart() });
-	}
-
-	progressUpdate(data: any) {
-		this.setState({ progress: data.progress });
-	}
-
-	restart() {
-		WebSocket.ws.Emit("/server/system/restart");
-	}
-
-	render() {
-		return (
-			<Drawer
-				title={`系统设置`}
-				placement={`top`}
-				closable={false}
-				onClose={() => this.onClose()}
-				visible={this.state.visible}
-				getContainer={false}
-				width={"100%"}
-				height={"80%"}
-				destroyOnClose
-				className="setting"
-			>
-				<Tabs defaultActiveKey="1">
-					<TabPane tab="基本设置" key="1">
-						<div className="setting-form">
-							<Button type="default" loading={this.state.loading} onClick={() => this.startCheck()}>
-								{this.state.progress ? `正在更新... ${this.state.progress}%` : "检测更新"}
-							</Button>
-						</div>
-						<div className="button-box">
-							<Button type="primary">保存</Button>
-						</div>
-					</TabPane>
-				</Tabs>
-			</Drawer>
-		);
-	}
+            </Drawer>
+        );
+    }
 }
+
+interface TabPanelProps {
+    children?: React.ReactNode;
+    dir?: string;
+    index: any;
+    value: any;
+}
+
+function TabPanel(props: TabPanelProps) {
+    const {children, value, index, ...other} = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`full-width-tabpanel-${index}`}
+            aria-labelledby={`full-width-tab-${index}`}
+            {...other}
+        >
+            {children}
+        </div>
+    );
+}
+
+function a11yProps(index: any) {
+    return {
+        id: `full-width-tab-${index}`,
+        "aria-controls": `full-width-tabpanel-${index}`,
+    };
+}
+
+export default withStyles(styleSheet)(Setting)

@@ -10,12 +10,12 @@ class Socket {
 
 		this.ws = new socket({
 			host: "http://127.0.0.1",
-			port: "12389"
+			port: "12389",
 		});
 
-		this.ws.Global = { uuid: "redis-desktop-server" };
+		this.ws.Global = { uuid: "redis-desktop-electron" };
 		this.ws.OnOpen = () => this.open();
-		this.ws.OnError = err => this.error(err);
+		this.ws.OnError = (err) => this.error(err);
 		this.ws.OnClose = () => this.close();
 
 		this.ws.AddListener("/redis/login/login", (e, data) => this.login(e, data));

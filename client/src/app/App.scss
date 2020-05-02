@@ -1,0 +1,29 @@
+textarea,
+textarea:focus,
+textarea:hover {
+	border: 0px solid #d9d9d9 !important;
+	outline: none;
+	-webkit-box-shadow: unset;
+	box-shadow: unset;
+}
+
+input,
+input:focus,
+input:hover {
+	border: 0px solid #d9d9d9 !important;
+	outline: none;
+	-webkit-box-shadow: unset;
+	box-shadow: unset;
+}
+
+.MuiSelect-select:focus {
+	background: none !important;
+}
+
+.MuiTab-wrapper {
+	width: 100%;
+	display: inline-flex;
+	align-items: center;
+	flex-direction: column;
+	justify-content: flex-start;
+}
