@@ -33,7 +33,3 @@ code {
 	height: 37px;
 	background: url(./app/loading-1.gif);
 }
-
-.ant-modal-body {
-	padding: 12px;
-}
