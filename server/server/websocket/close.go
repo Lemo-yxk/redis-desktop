@@ -19,12 +19,16 @@ import (
 
 func Close(conn *lemo.WebSocket) {
 
-	for v := range app.Connection().Range() {
-		if v.Value.FD == conn.FD {
-			app.Connection().Del(v.Key)
-			console.Log("delete", v.Key, v.Value.FD)
-		}
+	var electron = app.Electron().GetConnection()
+	if electron != nil {
+		app.Electron().Destroy()
+		console.Log("electron", electron.FD, "close")
 	}
 
-	console.Log(conn.FD, "close")
+	var react = app.React().GetConnection()
+	if react != nil {
+		app.React().Destroy()
+		console.Log("react", react.FD, "close")
+	}
+
 }

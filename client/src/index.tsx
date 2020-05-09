@@ -22,12 +22,8 @@ Axios.interceptors.response.use(
 );
 
 
-// create uuid
-if (!Config.getUUID()) Config.createUUID();
 Config.delDB();
 Config.delServerName();
-Config.delCurrent();
-Config.delStatus();
 
 ReactDOM.render(<App/>, document.getElementById("root"));
 

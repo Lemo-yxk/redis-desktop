@@ -33,18 +33,18 @@ function startServer() {
 	if (!dev) {
 		if (process.platform === "win32") {
 			server = child.spawn(path.join(__dirname, "/windows-server/server.exe"), {
-				stdio: "pipe"
+				stdio: "pipe",
 			});
 		} else {
 			server = child.exec(path.join(__dirname, "/mac-server/server"), {
-				stdio: "pipe"
+				stdio: "pipe",
 			});
 		}
-		server.stdout.on("data", data => {
+		server.stdout.on("data", (data) => {
 			console.log(data);
 		});
 
-		server.on("error", err => console.log(err));
+		server.on("error", (err) => console.log(err));
 	}
 }
 
@@ -60,13 +60,18 @@ function createWindow() {
 	let width = size.width * 0.8;
 	let height = size.height * 0.8;
 
+	if (width < 900) {
+		width = size.width * 0.9;
+		height = size.height * 0.9;
+	}
+
 	mainWindow = new BrowserWindow({
 		width: dev ? size.width * 1 : width,
 		height: height,
 		icon: path.join(__dirname, "redis.icns"),
 		webPreferences: {
-			nodeIntegration: true
-		}
+			nodeIntegration: true,
+		},
 	});
 
 	// and load the index.html of the app.
@@ -90,9 +95,9 @@ if (process.platform === "darwin") {
 					accelerator: "Command+Q",
 					click: () => {
 						quit(() => app.quit());
-					}
-				}
-			]
+					},
+				},
+			],
 		},
 		{
 			label: "Edit",
@@ -103,13 +108,13 @@ if (process.platform === "darwin") {
 				{ label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
 				{ label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
 				{ label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-				{ label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
-			]
+				{ label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" },
+			],
 		},
 		{
 			label: "Dev",
-			submenu: [{ label: "Open Dev Tools", role: "toggleDevTools" }]
-		}
+			submenu: [{ label: "Open Dev Tools", role: "toggleDevTools" }],
+		},
 	];
 	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 } else {
@@ -118,58 +123,54 @@ if (process.platform === "darwin") {
 
 app.allowRendererProcessReuse = true;
 
-function appStart() {
-	// This method will be called when Electron has finished
-	// initialization and is ready to create browser windows.
-	// Some APIs can only be used after this event occurs.
-	app.on("ready", () => {
-		// 注册一个 'CommandOrControl+X' 的全局快捷键
-		const ret = globalShortcut.register("CommandOrControl+P", () => {
-			mainWindow.webContents.openDevTools();
-			console.log("CommandOrControl+P is pressed");
-		});
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on("ready", () => {
+	// 注册一个 'CommandOrControl+X' 的全局快捷键
+	const ret = globalShortcut.register("CommandOrControl+P", () => {
+		mainWindow.webContents.openDevTools();
+		console.log("CommandOrControl+P is pressed");
+	});
 
-		console.log(ret);
+	console.log(ret);
 
-		// 检查快捷键是否注册成功
-		console.log(globalShortcut.isRegistered("CommandOrControl+X"));
+	// 检查快捷键是否注册成功
+	console.log(globalShortcut.isRegistered("CommandOrControl+X"));
 
-		console.log("on ready");
-		console.log("main pid", process.pid);
-		if (server) console.log("child pid", server.pid);
+	console.log("on ready");
+	console.log("main pid", process.pid);
+	if (server) console.log("child pid", server.pid);
 
+	createWindow();
+});
+
+// Quit when all windows are closed.
+app.on("window-all-closed", () => {
+	console.log("on window-all-closed");
+	// On OS X it is common for applications and their menu bar
+	// to stay active until the user quits explicitly with Cmd + Q
+	// if (process.platform !== "darwin") {}
+	return quit(() => app.quit());
+});
+
+app.on("activate", () => {
+	console.log("on activate");
+	// On OS X it's common to re-create a window in the app when the
+	// dock icon is clicked and there are no other windows open.
+	if (BrowserWindow.getAllWindows().length === 0) {
 		createWindow();
-	});
+	}
+});
 
-	// Quit when all windows are closed.
-	app.on("window-all-closed", () => {
-		console.log("on window-all-closed");
-		// On OS X it is common for applications and their menu bar
-		// to stay active until the user quits explicitly with Cmd + Q
-		// if (process.platform !== "darwin") {}
-		return quit(() => app.quit());
-	});
-
-	app.on("activate", () => {
-		console.log("on activate");
-		// On OS X it's common to re-create a window in the app when the
-		// dock icon is clicked and there are no other windows open.
-		if (BrowserWindow.getAllWindows().length === 0) {
-			createWindow();
-		}
-	});
-
-	// In this file you can include the rest of your app's specific main process
-	// code. You can also put them in separate files and import them here.
-}
+// In this file you can include the rest of your app's specific main process
+// code. You can also put them in separate files and import them here.
 
 var Socket = require("./socket");
 var Update = require("./update");
 
 var ws = new Socket(app);
 
-ws.start(() => {
-	new Update(app, ws);
-	appStart();
-	app.emit("ready");
-});
+var update = new Update(app, ws);
+
+ws.start(() => {});

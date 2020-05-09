@@ -43,6 +43,10 @@ class Setting extends Component<any, any> {
         WebSocket.ws.Emit("/Electron/System/command", `console.log(this.app)`);
     }
 
+    update() {
+        WebSocket.ws.Emit("/Electron/System/update", `console.log(this.app)`);
+    }
+
     render() {
 
         const classes = this.props.classes
@@ -68,9 +72,9 @@ class Setting extends Component<any, any> {
 
                     <TabPanel value={this.state.index} index={0}>
                         <div className="setting-form">
-                            {/*<Button variant="contained" onClick={() => this.restart()}>*/}
-                            {/*    重启*/}
-                            {/*</Button>*/}
+                            <Button variant="contained" onClick={() => this.update()}>
+                                更新
+                            </Button>
 
                             {/*<Button variant="contained" onClick={() => this.command()}>*/}
                             {/*    命令*/}

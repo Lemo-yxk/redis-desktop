@@ -20,7 +20,7 @@ const useStyles = (theme: Theme) =>
     })
 
 class ServerList extends Component<any, any> {
-    state = {index: -1, visible: false, configs: Config.allConfig() as { [key: string]: config }};
+    state = {index: -1, visible: false, configs: Config.getAllConfig() as { [key: string]: config }};
 
     onClose() {
         this.setState({visible: false});
@@ -32,8 +32,8 @@ class ServerList extends Component<any, any> {
 
     componentDidMount() {
         Event.add("openServerList", () => this.onOpen());
-        Event.add("addServer", () => this.setState({configs: Config.allConfig()}));
-        Event.add("updateServer", () => this.setState({configs: Config.allConfig()}));
+        Event.add("addServer", () => this.setState({configs: Config.getAllConfig()}));
+        Event.add("updateServer", () => this.setState({configs: Config.getAllConfig()}));
     }
 
     componentWillUnmount() {
@@ -60,8 +60,9 @@ class ServerList extends Component<any, any> {
     }
 
     delete(config: config) {
-        Config.deleteConfig(config.name);
-        this.setState({configs: Config.allConfig()});
+        delete this.state.configs[config.name]
+        this.setState({configs: this.state.configs});
+        Config.setAllConfig(this.state.configs)
         Event.emit("delete", config.name);
         Command.disconnect(config.name);
     }
@@ -70,11 +71,10 @@ class ServerList extends Component<any, any> {
         for (const key in this.state.configs) {
             if (key === config.name) continue;
             this.state.configs[key].default = false;
-            Config.setConfig(key, this.state.configs[key]);
         }
         config.default = !config.default;
-        Config.setConfig(config.name, config);
-        this.setState({configs: Config.allConfig()});
+        this.setState({configs: this.state.configs});
+        Config.setAllConfig(this.state.configs)
     }
 
     addServer() {
@@ -111,7 +111,7 @@ class ServerList extends Component<any, any> {
                                     Event.emit("openModal", {
                                         Content: "确定导出所有配置?",
                                         Ok: () => {
-                                            Command.export("config.json", JSON.stringify(Config.allConfig()));
+                                            Command.export("config.json", JSON.stringify(this.state.configs));
                                         }
                                     })
                                 }

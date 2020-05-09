@@ -13,11 +13,6 @@ class Command {
         return {name, db};
     }
 
-    uuid() {
-        let uuid = Config.getUUID();
-        if (!uuid) return Tools.Message.Error("uuid is empty!");
-        return {uuid};
-    }
 
     async export(fileName: string, data: any) {
         return Axios({
@@ -35,21 +30,21 @@ class Command {
     }
 
     async register(type: string, cfg: config) {
-        return await Axios.post(`/redis/register/${type}`, Qs.stringify({...this.uuid(), ...cfg}));
+        return await Axios.post(`/redis/register/${type}`, Qs.stringify({...cfg}));
     }
 
     async disconnect(serverName: string) {
-        return await Axios.post(`/redis/db/disconnect`, Qs.stringify({name: serverName, ...this.uuid()}));
+        return await Axios.post(`/redis/db/disconnect`, Qs.stringify({name: serverName}));
     }
 
     async selectDB(serverName: string, db: any) {
-        return await Axios.post(`/redis/db/select`, Qs.stringify({name: serverName, db, ...this.uuid()}));
+        return await Axios.post(`/redis/db/select`, Qs.stringify({name: serverName, db}));
     }
 
-    async scan(fliter: string) {
+    async scan(filter: string) {
         let response = await Axios.post(
             `/redis/db/scan`,
-            Qs.stringify({filter: fliter, ...this.serverNameAndDB(), ...this.uuid()})
+            Qs.stringify({filter: filter, ...this.serverNameAndDB()})
         );
         return response.data.msg;
     }
@@ -57,7 +52,7 @@ class Command {
     async type(key: string) {
         let response = await Axios.post(
             `/redis/key/type`,
-            Qs.stringify({...this.serverNameAndDB(), key: key, ...this.uuid()})
+            Qs.stringify({...this.serverNameAndDB(), key: key})
         );
         return response.data.msg;
     }
@@ -67,7 +62,6 @@ class Command {
             `/redis/key/do`,
             Qs.stringify({
                 ...this.serverNameAndDB(),
-                ...this.uuid(),
                 key: key,
                 args: JSON.stringify(args)
             })
@@ -85,7 +79,6 @@ class Command {
             `/redis/key/do`,
             Qs.stringify({
                 ...this.serverNameAndDB(),
-                ...this.uuid(),
                 key: key,
                 args: JSON.stringify(args)
             })

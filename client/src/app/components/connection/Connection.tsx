@@ -8,7 +8,7 @@ export default class Connection extends Component {
 	}
 
 	getDefaultConfig() {
-		var configs = Config.allConfig();
+		var configs = Config.getAllConfig();
 		for (const key in configs) {
 			let config = configs[key];
 			if (config.default) {

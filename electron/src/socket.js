@@ -18,12 +18,12 @@ class Socket {
 		this.ws.OnError = (err) => this.error(err);
 		this.ws.OnClose = () => this.close();
 
-		this.ws.AddListener("/redis/login/login", (e, data) => this.login(e, data));
+		this.ws.AddListener("/electron/system/login", (e, data) => this.login(e, data));
 	}
 
 	open() {
 		console.log("on open");
-		this.ws.Emit("/redis/login/login", {});
+		this.ws.Emit("/electron/system/login", { dir: __dirname });
 	}
 
 	error(err) {

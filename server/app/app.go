@@ -15,15 +15,17 @@ import (
 )
 
 var App struct {
-	socket     *lemo.WebSocketServer
-	redis      *redisClient
-	connection *connection
+	socket   *lemo.WebSocketServer
+	redis    *redisClient
+	electron *electron
+	react    *react
 }
 
 func Init() {
 	App.socket = newSocket()
 	App.redis = newRedis()
-	App.connection = newConnection()
+	App.electron = newElectron()
+	App.react = newReact()
 }
 
 func Socket() *lemo.WebSocketServer {
@@ -34,6 +36,10 @@ func Redis() *redisClient {
 	return App.redis
 }
 
-func Connection() *connection {
-	return App.connection
+func React() *react {
+	return App.react
+}
+
+func Electron() *electron {
+	return App.electron
 }

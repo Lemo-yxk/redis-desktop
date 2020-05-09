@@ -1,4 +1,3 @@
-import Layer from "../components/layer/Layer";
 import Event from "../event/Event";
 import {ModalConfig} from "../interface/modal";
 
@@ -25,7 +24,7 @@ class Tools {
             console.log(error);
             this.Message.Error(error.message);
             this.Message.Close()
-            Layer.close();
+            this.Loading.Hide()
             throw error;
         }
         success = success || response.data.msg;
@@ -51,6 +50,15 @@ class Tools {
     Modal = {
         Show(config: ModalConfig) {
             Event.emit("openModal", config)
+        }
+    }
+
+    Loading = {
+        Show() {
+            Event.emit("loading", true);
+        },
+        Hide() {
+            Event.emit("loading", false);
         }
     }
 

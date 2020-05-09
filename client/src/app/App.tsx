@@ -1,55 +1,50 @@
-import React, { Component } from "react";
-import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
-import { createBrowserHistory, History, UnregisterCallback, Location } from "history";
+import React, {Component} from "react";
+import {HashRouter, Redirect, Route, Switch} from "react-router-dom";
+import {createBrowserHistory, History, Location, UnregisterCallback} from "history";
 import "./App.scss";
 import Index from "./pages/index/Index";
 import Login from "./pages/login/Login";
 import WebSocket from "./ws/WebSocket";
-import Config from "./components/config/Config";
 
 export default class App extends Component {
-	unlisten!: UnregisterCallback;
+    unListen!: UnregisterCallback;
 
-	change(location: Location<History.PoorMansUnknown>) {
-		if (!Config.getStatus()) return (window.location.hash = "/login");
-		if (location.hash === "#/login") return (window.location.hash = "/index");
-	}
+    change(location: Location<History.PoorMansUnknown>) {
 
-	state = { start: false };
+    }
 
-	constructor(props: any) {
-		super(props);
-		WebSocket.start(() => this.setState({ start: true }));
-	}
 
-	componentDidMount() {
-		const history = createBrowserHistory();
-		// Get the current location.
-		const location = history.location;
+    constructor(props: any) {
+        super(props);
+        WebSocket.start();
+    }
 
-		this.change(location);
+    componentDidMount() {
+        const history = createBrowserHistory();
+        // Get the current location.
+        const location = history.location;
 
-		// Listen for changes to the current location.
-		this.unlisten = history.listen((location, action) => {
-			// location is an object like window.location
-			this.change(location);
-		});
-	}
+        this.change(location);
 
-	componentWillUnmount() {
-		WebSocket.close();
-		this.unlisten();
-	}
+        // Listen for changes to the current location.
+        this.unListen = history.listen((location, action) => {
+            // location is an object like window.location
+            this.change(location);
+        });
+    }
 
-	render() {
-		return this.state.start ? (
-			<HashRouter>
-				<Switch>
-					<Route path="/index" component={Index} />
-					<Route path="/login" component={Login} exact />
-					<Redirect from="**" to="/index" />
-				</Switch>
-			</HashRouter>
-		) : null;
-	}
+    componentWillUnmount() {
+        WebSocket.close();
+        this.unListen();
+    }
+
+    render() {
+        return <HashRouter>
+            <Switch>
+                <Route path="/index" component={Index}/>
+                <Route path="/login" component={Login} exact/>
+                <Redirect from="**" to="/index"/>
+            </Switch>
+        </HashRouter>
+    }
 }

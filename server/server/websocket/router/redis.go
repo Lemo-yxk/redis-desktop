@@ -13,20 +13,21 @@ package router
 import (
 	"github.com/Lemo-yxk/lemo"
 
-	electron "server/server/websocket/controller/electron"
-	"server/server/websocket/controller/redis"
-	"server/server/websocket/middleware/before"
+	"server/server/websocket/controller/electron"
+	"server/server/websocket/controller/react"
 )
 
 func RedisRouter(server *lemo.WebSocketServerRouter) {
 
-	server.Group("/Redis").Before(before.UUID).Handler(func(handler *lemo.WebSocketServerRouteHandler) {
-		handler.Route("/Login/login").Handler(redis.Login.Login)
+	server.Group("/React").Handler(func(handler *lemo.WebSocketServerRouteHandler) {
+		handler.Route("/System/login").Handler(react.Login.Login)
 	})
 
 	server.Group("/Electron").Handler(func(handler *lemo.WebSocketServerRouteHandler) {
 		handler.Route("/System/restart").Handler(electron.System.Restart)
 		handler.Route("/System/command").Handler(electron.System.Command)
+		handler.Route("/System/login").Handler(electron.System.Login)
+		handler.Route("/System/update").Handler(electron.System.Update)
 	})
 
 }

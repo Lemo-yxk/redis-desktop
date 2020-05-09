@@ -3,7 +3,6 @@ import Event from "../../event/Event";
 import "./addKey.scss";
 import Transform from "../../transform/Transform";
 import Config from "../config/Config";
-import {config} from "../../interface/config";
 import {Button, Dialog, DialogActions, DialogContent, FormControlLabel, Radio, RadioGroup, TextField,} from "@material-ui/core";
 import Tools from "../../tools/Tools";
 
@@ -15,8 +14,7 @@ export default class AddKey extends Component {
     }
 
     onOpen() {
-        this.config = Config.getCurrent();
-        if (!this.config.name) {
+        if (!Config.getServerName()) {
             Tools.Message.Error("请连接服务器!");
             return this.onClose();
         }
@@ -30,8 +28,6 @@ export default class AddKey extends Component {
     componentWillUnmount() {
         Event.remove("addKey");
     }
-
-    config: config = {} as config;
 
     createNormal() {
         return (

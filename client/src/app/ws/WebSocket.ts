@@ -1,5 +1,5 @@
 import Socket from "lows";
-import Config from "../components/config/Config";
+import Event from "../event/Event";
 
 class WebSocket {
     ws: Socket;
@@ -8,19 +8,18 @@ class WebSocket {
     constructor() {
         this.ws = new Socket({
             host: "http://127.0.0.1",
-            port: "12389"
+            port: "12389",
         });
 
-        this.ws.Global = {uuid: Config.getUUID()};
+        this.ws.Global = {};
 
         this.ws.OnOpen = () => {
             console.log("on open");
-            this.ws.Emit("/redis/login/login", {});
+            this.ws.Emit("/react/system/login", {});
         };
 
-        this.ws.AddListener("/redis/login/login", (e: any, data: any) => {
-            Config.setStatus("ready");
-            window.location.hash = "#/index";
+        this.ws.AddListener("/react/system/login", (e: any, data: any) => {
+            Event.emit("ready", true)
         });
 
         this.ws.OnError = (err: any) => {
@@ -28,13 +27,12 @@ class WebSocket {
         };
 
         this.ws.OnClose = () => {
-            Config.delStatus();
-            window.location.hash = "#/login";
+            Event.emit("ready", false)
             console.log("on close");
         };
     }
 
-    start(fn: any) {
+    start(fn?: any) {
         !this.isStart && this.ws.Start(fn);
         this.isStart = true;
     }

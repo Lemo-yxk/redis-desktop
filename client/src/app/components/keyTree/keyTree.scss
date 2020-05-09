@@ -1,57 +1,63 @@
 .key-tree {
-	// background: #ffffff;
-	position: relative !important;
-	height: 100%;
-	// border: 1px solid #dddddd;
-	padding: 5px 0 5px 5px;
+    // background: #ffffff;
+    position: relative !important;
+    height: 100%;
+    // border: 1px solid #dddddd;
+    padding: 5px 0 5px 5px;
 
-	.select-panel {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		flex-direction: column;
-		height: 42px;
-		width: 100%;
-		padding: 5px;
-	}
+    .select-panel {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-direction: column;
+        height: 42px;
+        width: 100%;
+        padding: 5px;
+    }
 
-	.data-tree {
-		height: calc(100% - 84px);
-		overflow-y: auto;
-		width: 100%;
-		padding: 5px 0;
-		.css-1up7t0w {
-			background-color: transparent;
-			padding: 0;
-			height: auto;
-		}
-	}
+    .data-tree {
+        height: calc(100% - 84px);
+        overflow-y: auto;
+        width: 100%;
+        padding: 5px 0;
 
-	.title {
-		height: 42px;
-		width: 100%;
-		> div {
-			height: 100%;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			padding: 5px;
-			border-top: 1px solid #eeeeee;
-		}
-	}
+        .css-1up7t0w {
+            background-color: transparent;
+            padding: 0;
+            height: auto;
+        }
+    }
+
+    .title {
+        height: 42px;
+        width: 100%;
+
+        > div {
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border-top: 1px solid #eeeeee;
+        }
+    }
 }
 
 .css-1u94gzr {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	transform: scale(0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: scale(0.8);
 }
 
 .css-80f7ae {
-	color: rgba(0, 0, 0, 0.65) !important;
+    color: rgba(0, 0, 0, 0.65) !important;
 }
 
 .css-1s1o8u8 {
-	padding-left: 24px !important;
+    padding-left: 24px !important;
+}
+
+.css-tokvmb {
+    margin: 3px 0;
 }

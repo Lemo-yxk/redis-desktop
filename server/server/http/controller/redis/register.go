@@ -47,7 +47,7 @@ func (r *register) Cluster(stream *lemo.Stream) exception.ErrorFunc {
 
 	// task.Watch(client)
 
-	return stream.JsonFormat("SUCCESS", 200, client.ConfigGet("DATABASES").Val())
+	return stream.JsonFormat("SUCCESS", 200, client.ConfigGet("databases").Val())
 }
 
 func (r *register) Normal(stream *lemo.Stream) exception.ErrorFunc {
@@ -73,5 +73,5 @@ func (r *register) Normal(stream *lemo.Stream) exception.ErrorFunc {
 
 	// task.Watch(client)
 
-	return stream.JsonFormat("SUCCESS", 200, client.ConfigGet("DATABASES").Val())
+	return stream.JsonFormat("SUCCESS", 200, client.ConfigGet("databases").Val())
 }

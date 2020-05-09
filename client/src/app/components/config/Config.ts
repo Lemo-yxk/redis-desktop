@@ -1,97 +1,65 @@
-import { config } from "../../interface/config";
+import {config} from "../../interface/config";
 
 class Config {
-	getCurrent() {
-		return JSON.parse(localStorage.getItem("current") || "{}");
-	}
 
-	setCurrent(cfg: config) {
-		localStorage.setItem("current", JSON.stringify(cfg));
-	}
+    setServerName(setServerName: string) {
+        localStorage.setItem("serverName", setServerName);
+    }
 
-	delCurrent() {
-		localStorage.removeItem("current");
-	}
+    getServerName() {
+        return localStorage.getItem("serverName");
+    }
 
-	setServerName(setServerName: string) {
-		localStorage.setItem("serverName", setServerName);
-	}
+    delServerName() {
+        localStorage.removeItem("serverName");
+    }
 
-	getServerName() {
-		return localStorage.getItem("serverName");
-	}
+    setDB(db: number) {
+        localStorage.setItem("db", `${db}`);
+    }
 
-	delServerName() {
-		localStorage.removeItem("serverName");
-	}
+    getDB() {
+        let db = localStorage.getItem("db");
+        if (!db) return null;
+        return parseInt(db);
+    }
 
-	setDB(db: number) {
-		localStorage.setItem("db", `${db}`);
-	}
+    delDB() {
+        localStorage.removeItem("db");
+    }
 
-	getDB() {
-		let db = localStorage.getItem("db");
-		if (!db) return null;
-		return parseInt(db);
-	}
+    getConfig(name: string): config {
+        let cfg = JSON.parse(localStorage.getItem("config") || "{}");
+        return cfg[name];
+    }
 
-	delDB() {
-		localStorage.removeItem("db");
-	}
+    setConfig(name: string, config: config) {
+        let cfg = JSON.parse(localStorage.getItem("config") || "{}");
+        cfg[name] = config;
+        localStorage.setItem("config", JSON.stringify(cfg));
+    }
 
-	setStatus(status: any) {
-		localStorage.setItem("status", status);
-	}
+    deleteConfig(name: string) {
+        let cfg = JSON.parse(localStorage.getItem("config") || "{}");
+        delete cfg[name];
+        localStorage.setItem("config", JSON.stringify(cfg));
+    }
 
-	getStatus() {
-		return localStorage.getItem("status");
-	}
+    getAllConfig() {
+        return JSON.parse(localStorage.getItem("config") || "{}");
+    }
 
-	delStatus() {
-		localStorage.removeItem("status");
-	}
+    setAllConfig(configs: { [key: string]: config }) {
+        localStorage.setItem("config", JSON.stringify(configs));
+    }
 
-	createUUID() {
-		localStorage.setItem(
-			"uuid",
-			Math.random()
-				.toString(16)
-				.slice(2)
-		);
-	}
+    deleteAllConfig() {
+        localStorage.removeItem("config");
+    }
 
-	getUUID() {
-		return localStorage.getItem("uuid");
-	}
-
-	allConfig() {
-		return JSON.parse(localStorage.getItem("config") || "{}");
-	}
-
-	getConfig(name: string): config {
-		let cfg = JSON.parse(localStorage.getItem("config") || "{}");
-		return cfg[name];
-	}
-
-	setConfig(name: string, config: config) {
-		let cfg = JSON.parse(localStorage.getItem("config") || "{}");
-		cfg[name] = config;
-		localStorage.setItem("config", JSON.stringify(cfg));
-	}
-
-	deleteConfig(name: string) {
-		let cfg = JSON.parse(localStorage.getItem("config") || "{}");
-		delete cfg[name];
-		localStorage.setItem("config", JSON.stringify(cfg));
-	}
-
-	deleteAllConfig() {
-		localStorage.removeItem("config");
-	}
-
-	clear() {
-		localStorage.clear();
-	}
+    clear() {
+        localStorage.clear();
+    }
 }
 
 export default new Config();

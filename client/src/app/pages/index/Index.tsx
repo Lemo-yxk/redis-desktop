@@ -12,11 +12,27 @@ import Setting from "../../components/setting/Setting";
 import Modal from "../../components/modal/Modal";
 import Message from "../../components/message/Message";
 import {SnackbarProvider} from "notistack";
+import Event from "../../event/Event";
+import Loading from "../../components/loading/Loading";
+import Ready from "../../components/ready/Ready";
 
 class Index extends Component {
+
+    state = {visible: false}
+
+    componentDidMount() {
+        Event.add("ready", (status) => this.setState({visible: status}))
+    }
+
+    componentWillUnmount() {
+        Event.remove("ready")
+    }
+
     render() {
+        if (!this.state.visible) return <Ready/>
         return (
             <div className="index">
+                <Loading/>
                 <SnackbarProvider maxSnack={3}><Message/></SnackbarProvider>
                 <Modal/>
                 <AddKey/>

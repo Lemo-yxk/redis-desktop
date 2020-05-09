@@ -20,9 +20,9 @@ import (
 
 func Scan(client *redis2.Client, uuid string, filter string) {
 
-	var conn = app.Connection().Get(uuid)
+	var react = app.React().GetConnection()
 
-	if conn == nil {
+	if react == nil {
 		return
 	}
 
@@ -37,7 +37,7 @@ func Scan(client *redis2.Client, uuid string, filter string) {
 		res = append(res, result.Result())
 		if len(res) == 1000 {
 			counter += 1000
-			conn.JsonFormat(lemo.JsonPackage{
+			react.JsonFormat(lemo.JsonPackage{
 				Event:   "scan",
 				Message: lemo.M{"dbSize": dbSize, "current": counter, "keys": res[:1000]},
 			})
@@ -47,7 +47,7 @@ func Scan(client *redis2.Client, uuid string, filter string) {
 
 	counter += len(res)
 
-	conn.JsonFormat(lemo.JsonPackage{
+	react.JsonFormat(lemo.JsonPackage{
 		Event:   "scan",
 		Message: lemo.M{"dbSize": dbSize, "current": counter, "keys": res, "done": true},
 	})
