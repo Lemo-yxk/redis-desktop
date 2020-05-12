@@ -15,7 +15,7 @@ import (
 	"github.com/Lemo-yxk/lemo/exception"
 )
 
-func Key(stream *lemo.Stream) (lemo.Context, exception.ErrorFunc) {
+func Key(stream *lemo.Stream) (lemo.Context, exception.Error) {
 
 	var key = stream.Form.Get("key").String()
 

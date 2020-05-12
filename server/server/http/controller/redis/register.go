@@ -24,7 +24,7 @@ type register struct{}
 
 var Register *register
 
-func (r *register) Cluster(stream *lemo.Stream) exception.ErrorFunc {
+func (r *register) Cluster(stream *lemo.Stream) exception.Error {
 	var name = stream.Form.Get("name").String()
 	var cluster = stream.Form.GetAll("cluster")
 	var password = stream.Form.Get("password").String()
@@ -50,7 +50,7 @@ func (r *register) Cluster(stream *lemo.Stream) exception.ErrorFunc {
 	return stream.JsonFormat("SUCCESS", 200, client.ConfigGet("databases").Val())
 }
 
-func (r *register) Normal(stream *lemo.Stream) exception.ErrorFunc {
+func (r *register) Normal(stream *lemo.Stream) exception.Error {
 
 	var name = stream.Form.Get("name").String()
 	var host = stream.Form.Get("host").String()

@@ -78,7 +78,7 @@ export default class AddServer extends Component {
                         <div className="normal-form">
                             <Select
                                 value={this.state.connectType}
-                                style={{width: "100%", height: '48px'}}
+                                style={{width: "100%", height: '45px'}}
                                 onChange={(e) => this.setState({connectType: e.target.value})}
                             >
                                 <MenuItem key={"normal"} value={"normal"}>

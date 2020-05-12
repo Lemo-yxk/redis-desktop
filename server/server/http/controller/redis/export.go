@@ -19,7 +19,7 @@ type export struct{}
 
 var Export *export
 
-func (r *export) File(stream *lemo.Stream) exception.ErrorFunc {
+func (r *export) File(stream *lemo.Stream) exception.Error {
 	var fileName = stream.Query.Get("fileName").String()
 	var data = stream.Query.Get("data").String()
 

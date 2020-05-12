@@ -22,7 +22,7 @@ type key struct{}
 
 var Key *key
 
-func (r *key) Type(stream *lemo.Stream) exception.ErrorFunc {
+func (r *key) Type(stream *lemo.Stream) exception.Error {
 	var name = stream.Form.Get("name").String()
 	var key = stream.Form.Get("key").String()
 
@@ -37,7 +37,7 @@ func (r *key) Type(stream *lemo.Stream) exception.ErrorFunc {
 	return stream.JsonFormat("SUCCESS", 200, res.Val())
 }
 
-func (r *key) Do(stream *lemo.Stream) exception.ErrorFunc {
+func (r *key) Do(stream *lemo.Stream) exception.Error {
 	var name = stream.Form.Get("name").String()
 	var args = stream.Form.Get("args").String()
 
@@ -55,7 +55,7 @@ func (r *key) Do(stream *lemo.Stream) exception.ErrorFunc {
 	return stream.JsonFormat("SUCCESS", 200, res.Val())
 }
 
-func (r *key) DoPipe(stream *lemo.Stream) exception.ErrorFunc {
+func (r *key) DoPipe(stream *lemo.Stream) exception.Error {
 	var name = stream.Form.Get("name").String()
 	var args = stream.Form.Get("args").String()
 

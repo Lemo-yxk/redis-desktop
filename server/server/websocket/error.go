@@ -15,6 +15,6 @@ import (
 	"github.com/Lemo-yxk/lemo/exception"
 )
 
-func Error(err exception.ErrorFunc) {
+func Error(err exception.Error) {
 	console.Error(err)
 }

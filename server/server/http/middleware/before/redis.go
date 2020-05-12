@@ -17,7 +17,7 @@ import (
 	"server/app"
 )
 
-func Redis(stream *lemo.Stream) (lemo.Context, exception.ErrorFunc) {
+func Redis(stream *lemo.Stream) (lemo.Context, exception.Error) {
 
 	var name = stream.Form.Get("name").String()
 

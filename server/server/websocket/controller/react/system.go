@@ -24,7 +24,7 @@ type login struct{}
 
 var Login *login
 
-func (l *login) Login(conn *lemo.WebSocket, receive *lemo.Receive) exception.ErrorFunc {
+func (l *login) Login(conn *lemo.WebSocket, receive *lemo.Receive) exception.Error {
 
 	app.React().SetConnection(conn)
 

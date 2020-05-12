@@ -25,7 +25,7 @@ type system struct{}
 
 var System *system
 
-func (l *system) Login(conn *lemo.WebSocket, receive *lemo.Receive) exception.ErrorFunc {
+func (l *system) Login(conn *lemo.WebSocket, receive *lemo.Receive) exception.Error {
 
 	var message = utils.Json.Bytes(receive.Body.Message)
 
@@ -44,7 +44,7 @@ func (l *system) Login(conn *lemo.WebSocket, receive *lemo.Receive) exception.Er
 	}})
 }
 
-func (l *system) Restart(conn *lemo.WebSocket, receive *lemo.Receive) exception.ErrorFunc {
+func (l *system) Restart(conn *lemo.WebSocket, receive *lemo.Receive) exception.Error {
 	var electron = app.Electron().GetConnection()
 	if electron == nil {
 		return nil
@@ -52,7 +52,7 @@ func (l *system) Restart(conn *lemo.WebSocket, receive *lemo.Receive) exception.
 	return exception.New(electron.Push(receive.Body.MessageType, receive.Body.Raw))
 }
 
-func (l *system) Command(conn *lemo.WebSocket, receive *lemo.Receive) exception.ErrorFunc {
+func (l *system) Command(conn *lemo.WebSocket, receive *lemo.Receive) exception.Error {
 	var electron = app.Electron().GetConnection()
 	if electron == nil {
 		return nil
@@ -60,7 +60,7 @@ func (l *system) Command(conn *lemo.WebSocket, receive *lemo.Receive) exception.
 	return exception.New(electron.Push(receive.Body.MessageType, receive.Body.Raw))
 }
 
-func (l *system) Update(conn *lemo.WebSocket, receive *lemo.Receive) exception.ErrorFunc {
+func (l *system) Update(conn *lemo.WebSocket, receive *lemo.Receive) exception.Error {
 
 	app.Electron().Update()
 

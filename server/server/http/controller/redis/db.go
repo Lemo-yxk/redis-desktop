@@ -22,14 +22,14 @@ type db struct{}
 
 var DB *db
 
-func (r *db) Select(stream *lemo.Stream) exception.ErrorFunc {
+func (r *db) Select(stream *lemo.Stream) exception.Error {
 	var name = stream.Form.Get("name").String()
 	var db = stream.Form.Get("db").Int()
 	var client = app.Redis().Get(name)
 	return stream.JsonFormat("SUCCESS", 200, client.Do("SELECT", db).Err())
 }
 
-func (r *db) Scan(stream *lemo.Stream) exception.ErrorFunc {
+func (r *db) Scan(stream *lemo.Stream) exception.Error {
 	var name = stream.Form.Get("name").String()
 	var filter = stream.Form.Get("filter").String()
 	var client = app.Redis().Get(name)
@@ -37,7 +37,7 @@ func (r *db) Scan(stream *lemo.Stream) exception.ErrorFunc {
 	return stream.JsonFormat("SUCCESS", 200, nil)
 }
 
-func (r *db) Disconnect(stream *lemo.Stream) exception.ErrorFunc {
+func (r *db) Disconnect(stream *lemo.Stream) exception.Error {
 
 	var name = stream.Form.Get("name").String()
 
